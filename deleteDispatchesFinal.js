@@ -1,18 +1,15 @@
-const { last } = require('lodash');
 const rp = require('request-promise');
 const FRT_PUB_BASE_URL = "https://apis.fretron.com";
-const TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjgyOTI2NTEsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiI0OTViODcyOC1jNzYxLTRmYTctODNmZS1kYjc1YTdkNjMyMjEiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6ZmFsc2UsInBvcnRhbFR5cGUiOiJiYXNpYyJ9.jgUrk_hkLUYTS-D9MrdKGMuVGhNDqoZob-9tsgTR3fU";
-const dataList = [];
+const TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MjgzODI1NDUsInVzZXJJZCI6ImExYzg1MWQ0LTZkMWItNGZiZi1hZDllLWRiNmJhOWViZTI3ZCIsImVtYWlsIjoiaGFyc2hpdC5ndXB0YUBmcmV0cm9uLmNvbSIsIm1vYmlsZU51bWJlciI6Ijg5NTUxMTcwMDMiLCJvcmdJZCI6IjQ2NGQ0ZTZhLTRkNjItNDI5Zi1hNjYwLTg2YTQ4ODM5YzdhZiIsIm5hbWUiOiJIYXJzaGl0IEd1cHRhIiwib3JnVHlwZSI6IkZMRUVUX09XTkVSIiwiaXNHb2QiOnRydWUsInBvcnRhbFR5cGUiOiJiYXNpYyJ9.5dHOhVRMeqq23YnKTuZH5wosRKrtADrydHFrdnwvIX0";
 const STATUS_PENDING = 'PENDING';
 const STATUS_PLACED = 'PLACED';
 const STATUS_AUCTIONED = 'AUCTIONED';
 const STATUS_INDENT = 'INDENT';
 const STATUS_ALLOCATED = 'ALLOCATED'
-const filterFrom = 1650522600000;
-const filterTill = 1651300200000;
-
-let successLog = [];
-let failureLog = [];
+const filterFrom = 1716977760000;
+const filterTill = 1730369760000;
+let failureList = []
+let successList = []
 
 //--------------------------------------------------------------------------------------------
 async function getFreightUnitByLineItemId(fuItemId) {
@@ -32,12 +29,14 @@ async function getFreightUnitByLineItemId(fuItemId) {
             throw new Error('No freight unit data available.');
         }
     } catch (error) {
-        failureLog.push(`Error in getting freight unit by item ${fuItemId}: ${error.message}`);
+        console.log(`Error in getting freight unit by item ${fuItemId}: ${error.message}`);
         return null;
     }
 }
 //--------------------------------------------------------------------------------------------
 async function getData() {
+    const dataList = [];
+
     let lastTimestamp = null;
     let lastUuid = null;
 
@@ -46,7 +45,7 @@ async function getData() {
             uri: `${FRT_PUB_BASE_URL}/shipment-view/dispatch-management/dispatches`,
             qs: {
                 size: 50,
-                filters: `{"lineItems.status":[],"lineItems.transporterId":[],"lineItems.loadTypeId":[],"companyCode":[],"documentDate":{"from":${filterFrom},"till":${filterTill}},"_customeField":null,"_not":{"type":["Temporary"],"lineItems.status":["FINALIZED","FINALIZATION_IN_PROGRESS"]},"updates.time":{"from":null,"till":null}}`,
+                filters: `{"lineItems.status":[],"lineItems.transporterId":[],"lineItems.loadTypeId":[],"documentDate":{"from":null,"till":null},"_customeField":null,"_not":{"type":["Temporary"],"lineItems.status":["FINALIZED","FINALIZATION_IN_PROGRESS"],"documentDate":{"from":${filterFrom},"till":${filterTill}}}}`,
                 soFilters: '{"secondaryStatus":[],"salesBranch":[],"customer":[],"orderDate":{"from":null,"till":null},"route":[],"salesOffice.zoneName":[],"salesOffice.regionName":[],"contractBranch.name":[],"_not":{"lineItems.status":["CLOSED"]},"orderNumber":[],"_nested":{"_path":"lineItems","lineItems.status":[],"consignee":[],"consigner":[],"origin":[],"destination":[],"_include_nested_hits":true}}',
                 from: lastTimestamp ? `[${lastTimestamp}, "${lastUuid}"]` : undefined
             },
@@ -61,7 +60,6 @@ async function getData() {
             const dispatchData = await rp(options);
             if (dispatchData.size === 0) {
                 console.log(`Found ${dataList.length} Records`);
-                successLog.push("Successfully fetched all dispatches");
                 break;
             }
 
@@ -86,7 +84,8 @@ async function getData() {
             break;
         }
     }
-    console.log(dataList)
+    console.log(dataList.length)
+    return dataList
 }
 //-------------------------------------------------------------------------------------
 async function deleteFreightUnitIfPending(freightUnitUuid) {
@@ -99,11 +98,18 @@ async function deleteFreightUnitIfPending(freightUnitUuid) {
             method: 'DELETE',
             json: true
         });
-        if (res.status === 200) successLog.push(`Deleted Freight Unit:\nUUID: ${freightUnitUuid}`);
-        else { failureLog.push(`Error Deleting Freight Unit:\nUUID: ${freightUnitUuid}\nError: ${res.error}`) }
+        if (res.status == 200) {
+            return res.data;
+        } else {
+            console.log("Error " + res.error);
+            return null;
+        }
+
     } catch (error) {
-        failureLog.push(`Error deleting Freight Unit:\nUUID: ${freightUnitUuid}\n${error.message}`);
+        console.log(`Error deleting Freight Unit:\nUUID: ${freightUnitUuid}\n${error.message}`);
+        return null
     }
+
 }
 //--------------------------------------------------------------------------------------------
 async function cancelAuction(auctionId, uuid) {
@@ -118,10 +124,15 @@ async function cancelAuction(auctionId, uuid) {
             json: true,
             body: {}
         });
-        if (res.status === 200) successLog.push(`Canceled Auction:\nUUID: ${uuid}`);
-        else { failureLog.push(`Error Canceling Auction:\nUUID: ${uuid}\nError: ${res.error}`) }
+        if (res.status == 200) {
+            return res.data;
+        } else {
+            console.log("Error " + res.error);
+            return null;
+        }
     } catch (error) {
-        failureLog.push(`Error canceling auction:\nUUID: ${uuid}\n${error.message}`);
+        console.log(`Error canceling auction:\nUUID: ${uuid}\n${error.message}`);
+        return null;
     }
 }
 //--------------------------------------------------------------------------------------------
@@ -139,10 +150,15 @@ async function finalizeVehicle(purchaseOrderLineItemId, uuid) {
                 purchaseOrderLineItemId: purchaseOrderLineItemId
             }
         });
-        if (res.status === 200) successLog.push(`Finalized Vehicle for Purchase Order:\nUUID:${uuid}`);
-        else { failureLog.push(`Error Finalizing Vehicle for Purchase Order:\nUUID:${uuid}\nError: ${res.error}`) }
+        if (res.status == 200) {
+            return res.data;
+        } else {
+            console.log("Error " + res.error);
+            return null;
+        }
     } catch (error) {
-        failureLog.push(`Error finalizing vehicle:\nUUID: ${uuid}\n${error.message}`);
+        console.log(`Error finalizing vehicle:\nUUID: ${uuid}\n${error.message}`);
+        return null;
     }
 }
 //--------------------------------------------------------------------------------------------
@@ -162,15 +178,21 @@ async function rejectIndent(freightUnitId, lineItemId, reason) {
                 reason: reason
             }
         });
-        if (res.status === 200) successLog.push(`Rejected Indent for Freight Unit:\nUUID:${freightUnitId}`);
-        else { failure.log(`Error Rejecting Indent for Freight Unit:\nUUID:${freightUnitId}\nError: ${res.error}`) }
+        if (res.status == 200) {
+            return res.data;
+        } else {
+            console.log("Error " + res.error);
+            return null;
+        }
     } catch (error) {
-        failureLog.push(`Error rejecting indent:\nUUID: ${freightUnitId}\n${error.message}`);
+        console.log(`Error rejecting indent:\nUUID: ${freightUnitId}\n${error.message}`);
+        return null;
     }
 }
 //-------------------------------------------------------------------------------------------
 async function forceCloseOrders(uniqueOrderIdsArray) {
     try {
+        console.log(uniqueOrderIdsArray);
         const res = await rp({
             uri: `${FRT_PUB_BASE_URL}/order-manager-v2/v1/admin/orders/force-close`,
             method: 'POST',
@@ -180,10 +202,15 @@ async function forceCloseOrders(uniqueOrderIdsArray) {
             },
             json: true
         });
-        if (res.status === 200) successLog.push(`-------------FORCE CLOSING ORDERS----------------\nOrder Closed for: ${uniqueOrderIdsArray}`);
-        else { failureLog.push(`-------------FORCE CLOSING ORDERS----------------\nError Closing Order for: ${uniqueOrderIdsArray}\nError: ${res.error}`) }
+        if (res.status == 200) {
+            return res.data;
+        } else {
+            console.log("Error " + res.error);
+            return null;
+        }
     } catch (error) {
-        failureLog.push('Error calling forceCloseOrders API:', error);
+        console.log('Error calling forceCloseOrders API:', error);
+        return null;
     }
 }
 //--------------------------------------------------------------------------------------------
@@ -198,25 +225,51 @@ async function cancelOrder(orderId, reason, uuid) {
             method: 'POST',
             json: true,
             body: {
-                reason: reason // Send the cancellation reason in the body
+                reason: reason
             }
         });
-        if (res.status === 200) successLog.push(`Order Cancelled for Freight Unit:\nUUID: ${uuid}`);
-        else { failureLog.push(`Order Cancelled for Freight Unit:\nUUID: ${uuid}\nError: ${res.error}`) }
+        if (res.status == 200) {
+            return res.data;
+        } else {
+            console.log("Error " + res.error);
+            return null;
+        }
     } catch (error) {
-        failureLog.push(`Error cancelling order:\nUUID: ${orderId}\n${error.message}`);
+        console.log(`Error cancelling order:\nUUID: ${orderId}\n${error.message}`);
+        return null;
     }
 }
 //--------------------------------------------------------------------------------------------
+function successAndFailList(res, uuid) {
+    if (res) successList.push[uuid];
+    else failureList.push[uuid];
+}
+//--------------------------------------------------------------------------------------------
 async function main() {
+
+    let dataList = await getData();
+
+    // let status = dataList.map(_ => _.lineItemStatus)
+
+    // let uniqueStatus = new Set(status)
+    // console.log("Unique STatus "+JSON.stringify(Array.from(uniqueStatus)))
+
     const uniqueOrderIds = new Set();
 
-    for (let data = 0; data < dataList.length; data++) {
+    let fuNotFOundInDb = []
+    let res
+
+    for (let i = 0; i < dataList.length; i++) {
+        let data = dataList[i];
+        console.log(`Process Running for ${i} Freight Unit`);
         const reason = "Bulk Removed";
-        const freightUnit = await getFreightUnitByLineItemId(dataList[data].lineItemUuid);
-        successLog.push(`${data}----------------------------------------------`)
-        failureLog.push(`${data}----------------------------------------------`)
-        if (dataList[data].lineItemStatus === STATUS_PENDING || dataList[data].lineItemStatus === STATUS_AUCTIONED || dataList[data].lineItemStatus === STATUS_ALLOCATED || dataList[data].lineItemStatus === STATUS_INDENT) {
+        const freightUnit = await getFreightUnitByLineItemId(data.lineItemUuid);
+
+        if (!freightUnit) {
+            fuNotFOundInDb.push(data.uuid)
+        }
+
+        if (data.lineItemStatus === STATUS_PENDING || data.lineItemStatus === STATUS_AUCTIONED || data.lineItemStatus === STATUS_ALLOCATED || data.lineItemStatus === STATUS_INDENT) {
 
             if (freightUnit && freightUnit.lineItems[0]?.salesOrderMappings) {
                 freightUnit.lineItems[0].salesOrderMappings.forEach(mapping => {
@@ -226,27 +279,35 @@ async function main() {
                 });
             }
         }
-        switch (dataList[data].lineItemStatus) {
+        switch (data.lineItemStatus) {
             case STATUS_PENDING:
-                await deleteFreightUnitIfPending(dataList[data].uuid);
+                res = await deleteFreightUnitIfPending(data.uuid);
+                successAndFailList(res, data.uuid)
                 break;
             case STATUS_PLACED:
-                await finalizeVehicle(dataList[data].purchaseOrderLineItemId, dataList[data].uuid);
+                res = await finalizeVehicle(data.purchaseOrderLineItemId, data.uuid);
+                successAndFailList(res, data.uuid)
                 break;
             case STATUS_AUCTIONED:
-                await cancelAuction(dataList[data].auctionId, dataList[data].uuid);
-                await deleteFreightUnitIfPending(dataList[data].uuid);
+                res = await cancelAuction(data.auctionId, data.uuid);
+                successAndFailList(res, data.uuid)
+                res = await deleteFreightUnitIfPending(data.uuid);
+                successAndFailList(res, data.uuid)
                 break;
             case STATUS_INDENT:
-                await rejectIndent(dataList[data].uuid, dataList[data].lineItemUuid, reason);
-                await deleteFreightUnitIfPending(dataList[data].uuid);
+                res = await rejectIndent(data.uuid, data.lineItemUuid, reason);
+                successAndFailList(res, data.uuid)
+                res = await deleteFreightUnitIfPending(data.uuid);
+                successAndFailList(res, data.uuid)
                 break;
             case STATUS_ALLOCATED:
-                await cancelOrder(dataList[data].purchaseOrderLineItemId, reason, dataList[data].uuid);
-                await deleteFreightUnitIfPending(dataList[data].uuid);
+                res = await cancelOrder(data.purchaseOrderLineItemId, reason, data.uuid);
+                successAndFailList(res, data.uuid)
+                res = await deleteFreightUnitIfPending(data.uuid);
+                successAndFailList(res, data.uuid)
                 break;
             default:
-                console.log(`${dataList[data].lineItemStatus} No Action Required`);
+                console.log(`${data.lineItemStatus} No Action Required`);
                 break;
         }
     }
@@ -255,8 +316,7 @@ async function main() {
 }
 
 (async () => {
-    await getData();
-    await main();
+    await main() ;
 
     console.log("===== Success Log =====");
     successLog.forEach(log => console.log(log));
