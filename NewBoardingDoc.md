@@ -87,3 +87,87 @@ Let’s break it down:
 Think of this like having two different sets of keys for your car: one for weekdays (when you need access to work) and another for weekends (when you only need access to home). The car remains the same, but the keys (configuration) change based on your schedule (environment). Similarly, the application remains the same, but the configuration file changes based on whether it's in production or test mode.
 
 ---
+
+Let's dive deeper into the explanation of each part of the project structure, followed by the flowchart that includes an example.
+
+---
+
+### Project Structure
+
+1. **DI (Dependency Injection) - Example: HTTP Module with GrizzlyServer**  
+   Dependency Injection (DI) is a design pattern used to pass the dependencies (like services or repositories) into classes rather than having them instantiate these dependencies themselves. It helps in decoupling components and making them easier to test and manage.
+
+   In our project, we use DI to inject dependencies like the HTTP server (GrizzlyServer) and other services into our resource files. For example, when starting the **GrizzlyServer** (our HTTP module), it injects resources (API endpoints), services, and repositories, making them available to handle requests.
+
+   **Real-world example**:  
+   Imagine an online shopping app where different sections (like user authentication, product listing, and payment processing) need different functionalities (services). DI is like giving each section the necessary tools it needs to perform its job without each section worrying about how to get those tools.
+
+---
+
+2. **Registering Resources**  
+   Resources in the project are like doors to specific parts of the system. Each resource is tied to a particular API endpoint (e.g., `/vehicles`, `/users`). This registration step maps URLs to the resource classes that will handle requests.
+
+---
+
+3. **Resource Files**  
+   Resource files contain the logic for handling specific API requests. Each resource file corresponds to a particular resource or endpoint. For example, a `VehicleResource` file could manage requests related to vehicles, while a `UserResource` could handle user-related requests. These resource files call services to perform the actual operations.
+
+   **Example**:  
+   - `VehicleResource`: Handles `/vehicles` requests.
+   - `UserResource`: Handles `/users` requests.
+
+---
+
+4. **Services**  
+   Services contain the core business logic of the application. When resource files receive requests, they call services to perform operations like checking data validity, updating records, or interacting with external APIs.
+
+   **Example**:  
+   A `DocumentService` might validate whether a vehicle's document is expired, interact with external services (like the mParivahan API), and return the result.
+
+---
+
+5. **Repositories**  
+   Repositories are responsible for interacting with the database. They handle data retrieval, updates, and persistence. Services depend on repositories to fetch or save data.
+
+   **Example**:  
+   A `VehicleRepository` would handle database operations like fetching vehicle data or saving new vehicles.
+
+---
+
+6. **Model**  
+   Models represent the data structure used throughout the project. They define how data is stored in the database and how it is transferred between different layers.
+
+   **Example**:  
+   A `Vehicle` model would define fields like `vehicleId`, `registrationNumber`, and `documentExpiryDate`. This model would be used by both repositories and services.
+
+---
+
+### Flowchart Example for Server Initialization and Request Processing
+
+```mermaid
+graph TD
+    A[HttpModule Initialization] --> B[AppComponent Setup]
+    B --> C[GrizzlyServer Starts]
+    C --> D[API Request: GET /vehicles]
+    D --> E[VehicleResource Handles Request]
+    E --> F[DocumentService Business Logic]
+    F --> G[VehicleRepository Database Interaction]
+    G --> H[Vehicle Model]
+    H --> G
+    G --> F
+    F --> E
+    E --> D
+```
+
+---
+
+### Example Flow Breakdown:
+1. **HttpModule Initialization**: Initializes and sets up the required components, including resources, services, etc.
+2. **AppComponent Setup**: Sets up the context for the application, registers resources, and binds them to their respective API endpoints.
+3. **GrizzlyServer Starts**: The server is started, and it begins listening for incoming HTTP requests.
+4. **API Request**: When a client makes an API request (e.g., `GET /vehicles`), the server routes the request to the appropriate resource.
+5. **VehicleResource Handles Request**: The resource file responsible for handling `/vehicles` routes the request to the appropriate service.
+6. **DocumentService Business Logic**: The service contains the logic for processing the request (e.g., validating a vehicle's documents).
+7. **VehicleRepository Database Interaction**: The service interacts with the repository to fetch or save data related to the vehicle.
+8. **Vehicle Model**: The repository uses the model to structure the data fetched from or saved to the database.
+
