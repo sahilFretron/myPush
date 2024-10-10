@@ -142,32 +142,5 @@ Let's dive deeper into the explanation of each part of the project structure, fo
 
 ---
 
-### Flowchart Example for Server Initialization and Request Processing
-
-```mermaid
-graph TD
-    A[HttpModule Initialization] --> B[AppComponent Setup]
-    B --> C[GrizzlyServer Starts]
-    C --> D[API Request: GET /vehicles]
-    D --> E[VehicleResource Handles Request]
-    E --> F[DocumentService Business Logic]
-    F --> G[VehicleRepository Database Interaction]
-    G --> H[Vehicle Model]
-    H --> G
-    G --> F
-    F --> E
-    E --> D
-```
-
----
-
-### Example Flow Breakdown:
-1. **HttpModule Initialization**: Initializes and sets up the required components, including resources, services, etc.
-2. **AppComponent Setup**: Sets up the context for the application, registers resources, and binds them to their respective API endpoints.
-3. **GrizzlyServer Starts**: The server is started, and it begins listening for incoming HTTP requests.
-4. **API Request**: When a client makes an API request (e.g., `GET /vehicles`), the server routes the request to the appropriate resource.
-5. **VehicleResource Handles Request**: The resource file responsible for handling `/vehicles` routes the request to the appropriate service.
-6. **DocumentService Business Logic**: The service contains the logic for processing the request (e.g., validating a vehicle's documents).
-7. **VehicleRepository Database Interaction**: The service interacts with the repository to fetch or save data related to the vehicle.
-8. **Vehicle Model**: The repository uses the model to structure the data fetched from or saved to the database.
+![Project screenshot](./images/StructureFlowchart.jpg)
 
