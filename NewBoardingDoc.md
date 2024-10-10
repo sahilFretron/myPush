@@ -88,57 +88,85 @@ Imagine a restaurant that offers different menus and services depending on the t
 
 ---
 
-Let's dive deeper into the explanation of each part of the project structure, followed by the flowchart that includes an example.
+## Project Structure
+
+### 1. Dependency Injection (DI) - Example: HTTP Module with GrizzlyServer  
+**Dependency Injection (DI)** is a design pattern used to inject dependencies (like services, repositories, or other components) into classes rather than letting the classes create these dependencies themselves. This ensures a decoupled architecture, making it easier to manage and test individual components.
+
+In this project, we use DI to inject the **GrizzlyServer** (HTTP module) and other services into our resource files. When the server starts, it initializes resources (API endpoints), services, repositories, producers, and consumers, all ready to handle incoming requests.
+
+**Example**:  
+In a shopping app, each module (user login, product display, checkout) needs different services. DI supplies these modules with the correct services, ensuring they work without having to create these services on their own.
 
 ---
 
-### Project Structure
+### 2. Registering Resources  
+**Resources** in the project are entry points for handling incoming HTTP requests. Each resource corresponds to a particular API endpoint (e.g., `/vehicles`, `/users`). Registering resources means mapping URLs to the resource classes that handle requests.
 
-1. **DI (Dependency Injection) - Example: HTTP Module with GrizzlyServer**  
-   Dependency Injection (DI) is a design pattern used to pass the dependencies (like services or repositories) into classes rather than having them instantiate these dependencies themselves. It helps in decoupling components and making them easier to test and manage.
-
-   In our project, we use DI to inject dependencies like the HTTP server (GrizzlyServer) and other services into our resource files. For example, when starting the **GrizzlyServer** (our HTTP module), it injects resources (API endpoints), services, and repositories, making them available to handle requests.
-
-   **Real-world example**:  
-   Imagine an online shopping app where different sections (like user authentication, product listing, and payment processing) need different functionalities (services). DI is like giving each section the necessary tools it needs to perform its job without each section worrying about how to get those tools.
+- **Example**:  
+  The `VehicleResource` class is registered to handle all requests to the `/vehicles` endpoint. This class processes the request, calls necessary services, and returns the response.
 
 ---
 
-2. **Registering Resources**  
-   Resources in the project are like doors to specific parts of the system. Each resource is tied to a particular API endpoint (e.g., `/vehicles`, `/users`). This registration step maps URLs to the resource classes that will handle requests.
+### 3. Resource Files  
+**Resource files** are responsible for handling the actual requests received at specific API endpoints. They process the requests, pass them to the services for business logic, and return the appropriate response to the client.
+
+- **Example**:  
+  - `VehicleResource`: Handles requests for `/vehicles` like fetching vehicle details or adding a new vehicle.
+  - `UserResource`: Manages requests to `/users` like user registration and login.
 
 ---
 
-3. **Resource Files**  
-   Resource files contain the logic for handling specific API requests. Each resource file corresponds to a particular resource or endpoint. For example, a `VehicleResource` file could manage requests related to vehicles, while a `UserResource` could handle user-related requests. These resource files call services to perform the actual operations.
+### 4. Services  
+**Services** contain the core business logic of the application. They execute the required operations, validate data, interact with external systems, and communicate with repositories to fetch or update data.
 
-   **Example**:  
-   - `VehicleResource`: Handles `/vehicles` requests.
-   - `UserResource`: Handles `/users` requests.
+- **Example**:  
+  A `DocumentService` could check if a vehicle’s document is expired. It might also call external APIs (e.g., the mParivahan API) for further validation.
 
----
-
-4. **Services**  
-   Services contain the core business logic of the application. When resource files receive requests, they call services to perform operations like checking data validity, updating records, or interacting with external APIs.
-
-   **Example**:  
-   A `DocumentService` might validate whether a vehicle's document is expired, interact with external services (like the mParivahan API), and return the result.
+In this project, services can also act as **Producers**, publishing events to a message broker when significant actions occur (e.g., notifying other systems when a vehicle document is validated).
 
 ---
 
-5. **Repositories**  
-   Repositories are responsible for interacting with the database. They handle data retrieval, updates, and persistence. Services depend on repositories to fetch or save data.
+### 5. Producer  
+**Producers** are components responsible for sending messages to a message broker. For example, after a service processes a request (such as validating a document), it can publish a message to notify other parts of the system or trigger workflows.
 
-   **Example**:  
-   A `VehicleRepository` would handle database operations like fetching vehicle data or saving new vehicles.
+- **Example**:  
+  A `DocumentService` might publish a message to a message broker (like Kafka or RabbitMQ) that the document has been successfully validated.
 
 ---
 
-6. **Model**  
-   Models represent the data structure used throughout the project. They define how data is stored in the database and how it is transferred between different layers.
+### 6. Consumer  
+**Consumers** listen for messages from the message broker and act on them. For instance, a `DocumentConsumer` could listen for document validation messages and trigger additional workflows based on the content of those messages.
 
-   **Example**:  
-   A `Vehicle` model would define fields like `vehicleId`, `registrationNumber`, and `documentExpiryDate`. This model would be used by both repositories and services.
+- **Example**:  
+  A `NotificationService` could consume messages from the message broker and send out an email or an alert when the document validation is completed.
+
+---
+
+### 7. Repositories  
+**Repositories** manage database interactions. They perform operations like retrieving data, updating records, or saving new entities. Services rely on repositories to fetch or save data in the database.
+
+- **Example**:  
+  The `VehicleRepository` might handle database queries to fetch vehicle details or insert a new vehicle record.
+
+---
+
+### 8. Model  
+**Models** represent the structure of the data in the project. These classes define how data is stored in the database and how it flows between different layers of the system.
+
+- **Example**:  
+  The `Vehicle` model would contain fields like `vehicleId`, `registrationNumber`, and `documentExpiryDate`. This model is used by the service and repository layers to handle vehicle data.
+
+---
+
+In this structure:
+- The **HttpModule** initializes the application.
+- **AppComponent** sets up all dependencies, including the HTTP server, resources, and services.
+- The **GrizzlyServer** starts, ready to handle API requests.
+- A client makes a request, which is routed through **VehicleResource** to the appropriate service (**DocumentService**).
+- **DocumentService** interacts with the **VehicleRepository** and **Vehicle Model** for data operations.
+- Once processing is complete, the **DocumentService** (as a **Producer**) sends a message to the **Message Broker**.
+- A **Consumer** picks up this message and triggers additional processing, such as notifying the user.
 
 ---
 
