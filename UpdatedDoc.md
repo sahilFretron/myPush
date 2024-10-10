@@ -142,6 +142,7 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
 2. **Request Middleware (Providers) Handles Trace ID**  
    - Checks for a Trace ID in the request.
    - If missing, generates a new Trace ID and adds it to the MDC for logging.
+   - Trace ID: A unique identifier assigned to each request, used for tracking and logging throughout the system. It allows developers to trace the flow of a request across various components, making debugging and monitoring easier.
 
 3. **Resources Handle Routing**  
    - Routes the request to the appropriate resource (e.g., `VehicleResource` for `/vehicles`).
