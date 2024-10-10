@@ -1,180 +1,89 @@
-Here’s a detailed documentation in GitHub Markdown format, explaining how the XML and Dependency Injection (DI) work based on the provided code. This documentation includes explanations, code examples, and a diagram to illustrate the DI process.
+# Project: Documentation for Newly Boarding Members
+
+### XML Files
+
+**What are XML Files?**  
+XML (Extensible Markup Language) is a structured format used to store data in a way that both humans and machines can read. In our project, XML files are mainly used to store application settings, like database details, service URLs, and other configurations.
+
+**Why do we need XML files?**  
+Instead of hardcoding important values (like database names or server addresses) directly into the code, XML files allow us to separate these configurations. This way, if we need to update or change these values, we only need to edit the XML file instead of modifying the code. This helps in maintaining flexibility and preventing errors in different environments (like production or testing).
 
 ---
 
-# Project Documentation
-
-## Overview
-
-This documentation provides a detailed explanation of the Dependency Injection (DI) setup and how XML configuration works within our application. It aims to help new members onboard smoothly and understand the architecture of the project.
-
-## Table of Contents
-
-- [1. What is Dependency Injection?](#1-what-is-dependency-injection)
-- [2. Why Use Dependency Injection?](#2-why-use-dependency-injection)
-- [3. Dependency Injection in This Project](#3-dependency-injection-in-this-project)
-- [4. Understanding the Code](#4-understanding-the-code)
-  - [4.1. Service Module](#41-service-module)
-  - [4.2. Provider Methods](#42-provider-methods)
-- [5. XML Configuration](#5-xml-configuration)
-- [6. How to Add a New Service](#6-how-to-add-a-new-service)
-- [7. Diagram of Dependency Injection](#7-diagram-of-dependency-injection)
-- [8. Conclusion](#8-conclusion)
-
----
-
-## 1. What is Dependency Injection?
-
-Dependency Injection is a design pattern used to implement IoC (Inversion of Control), allowing for more modular and testable code. Instead of a class instantiating its dependencies directly, they are provided (or "injected") from an external source.
-
-### Key Benefits:
-- **Loose Coupling**: Classes are less dependent on concrete implementations.
-- **Easier Testing**: Dependencies can be mocked or stubbed.
-- **Code Reusability**: Components can be reused in different contexts.
-
----
-
-## 2. Why Use Dependency Injection?
-
-In our project, Dependency Injection is used to manage the creation and binding of service instances. This approach provides several advantages:
-
-- **Centralized Configuration**: All service dependencies are defined in one place.
-- **Flexible Testing**: Easier to swap out implementations for unit tests.
-- **Scalability**: As the application grows, managing dependencies becomes easier.
-
----
-
-## 3. Dependency Injection in This Project
-
-In this project, we utilize Dagger 2 for Dependency Injection. The main entry point for DI is the `ServiceModule` class. This class defines provider methods that tell Dagger how to create instances of the services used throughout the application.
-
-### Key Components:
-- **Modules**: Classes annotated with `@Module` that provide methods to create service instances.
-- **Providers**: Methods within modules annotated with `@Provides` that create and return the dependencies.
-
----
-
-## 4. Understanding the Code
-
-### 4.1. Service Module
-
-The `ServiceModule` class is annotated with `@Module`, indicating to Dagger that it contains methods for providing dependencies.
-
-```kotlin
-@Module
-open class ServiceModule {
-    ...
-}
-```
-
-### 4.2. Provider Methods
-
-Each provider method within `ServiceModule` uses the `@Provides` annotation. These methods define how to create an instance of a service.
-
-Example of a provider method for the `AuthService`:
-
-```kotlin
-@Provides
-@Singleton
-fun provideAuthService(
-    requestHelper: RequestHelper,
-    @Named(Constants.USER_MANAGER_SERVICE_URL) userAppServiceUrl: String
-): AuthService {
-    return com.fretron.partnerfleet.services.gateways.AuthServiceImpl(requestHelper, userAppServiceUrl)
-}
-```
-
-In this example:
-- `requestHelper` is injected into the method.
-- The URL for the user manager service is injected using `@Named`.
-
----
-
-## 5. XML Configuration
-
-In this project, XML configuration is not explicitly shown in the provided code, but typically, it would be used for defining certain application settings, database configurations, or other environmental settings that should not be hard-coded.
-
-Example XML Configuration File (`config.xml`):
+**Example XML File**:
 
 ```xml
-<configuration>
-    <services>
-        <service name="AuthService" url="http://auth.service.url" />
-        <service name="DocumentService" url="http://doc.service.url" />
-    </services>
-</configuration>
+<?xml version='1.0' encoding='UTF-8'?>
+<properties>
+    <!-- Application Configuration -->
+    <entry key="registry.manager.app.ip">http://0.0.0.0</entry>
+    <entry key="registry.manager.app.port">8087</entry>
+
+    <!-- Database Configuration -->
+    <entry key="registry.manager.db.name">registry</entry>
+    <entry key="registry.manager.db.host">mongo-registry.databases</entry>
+    <entry key="registry.manager.db.port">27017</entry>
+
+    <!-- Service URLs -->
+    <entry key="gps.processor.service.url">http://position-processor.streams:2121</entry>
+</properties>
 ```
 
-### Loading XML Configuration
+This XML file contains:
+- **Application Configuration**: Stores the IP and port of the application (`registry.manager.app.ip` and `registry.manager.app.port`).
+- **Database Configuration**: Defines the database name, host, and port (`registry.manager.db.name`, `registry.manager.db.host`, `registry.manager.db.port`).
+- **Service URLs**: Holds the URL for a GPS processor service (`gps.processor.service.url`).
 
-XML configurations can be loaded at runtime using an appropriate library, such as `javax.xml.parsers` in Java or a similar library in Kotlin.
-
----
-
-## 6. How to Add a New Service
-
-To add a new service to the project:
-
-1. **Create the Service Interface**: Define the service's functionality.
-   ```kotlin
-   interface NewService {
-       fun performAction()
-   }
-   ```
-
-2. **Implement the Service**: Create a class that implements the interface.
-   ```kotlin
-   class NewServiceImpl(private val requestHelper: RequestHelper) : NewService {
-       override fun performAction() {
-           // Implementation
-       }
-   }
-   ```
-
-3. **Add a Provider Method**: In `ServiceModule`, add a provider method for the new service.
-   ```kotlin
-   @Provides
-   @Singleton
-   fun provideNewService(requestHelper: RequestHelper): NewService {
-       return NewServiceImpl(requestHelper)
-   }
-   ```
-
-4. **Inject the Service**: Use the new service in classes where needed.
-   ```kotlin
-   class SomeClass @Inject constructor(private val newService: NewService) {
-       fun useService() {
-           newService.performAction()
-       }
-   }
-   ```
+By defining these values in the XML file, you can easily update them without altering your code. If the application server’s IP changes, you just edit the XML file instead of touching the codebase.
 
 ---
 
-## 7. Diagram of Dependency Injection
+### XML Overriding
 
-```mermaid
-flowchart
-    A[ServiceModule] -->|provides| B[AuthService]
-    A -->|provides| C[DocumentService]
-    A -->|provides| D[NewService]
-    B -->|uses| E[RequestHelper]
-    C -->|uses| F[ObjectMapper]
-    D -->|uses| E
+**What is XML Overriding?**  
+XML overriding is used when we have multiple environments (like production and testing) that need different settings. For example, your production database might be on a secure cloud server, while your test database could be on your local machine. To handle these differences, we create separate XML files for each environment.
+
+**How does it work?**  
+Imagine you have two files: `Production.xml` for your live environment and `Test.xml` for your testing environment. Both files have the same structure, but they contain different values based on the environment they’re used in.
+
+When you run the application in the **production environment**, it will load `Production.xml`, and when you run it in the **testing environment**, it will load `Test.xml`, overriding the settings from the base configuration.
+
+---
+
+**Detailed Example**:
+
+```xml
+<!-- Production.xml -->
+<properties>
+    <entry key="registry.manager.app.ip">http://prod-server.com</entry>
+    <entry key="registry.manager.db.host">mongo-prod.databases</entry>
+    <entry key="registry.manager.db.port">27017</entry>
+</properties>
 ```
 
-- **ServiceModule**: Central hub for providing services.
-- **Services**: AuthService, DocumentService, and NewService are provided by the ServiceModule.
-- **Dependencies**: Each service may have its own dependencies, such as `RequestHelper`.
+```xml
+<!-- Test.xml -->
+<properties>
+    <entry key="registry.manager.app.ip">http://test-server.com</entry>
+    <entry key="registry.manager.db.host">mongo-test.databases</entry>
+    <entry key="registry.manager.db.port">27018</entry>
+</properties>
+```
+
+Let’s break it down:
+
+- **Production.xml**:
+  - The application will run using the IP `http://prod-server.com` and connect to the production MongoDB instance located at `mongo-prod.databases` on port `27017`.
+  
+- **Test.xml**:
+  - In the test environment, the application will instead use the IP `http://test-server.com` and connect to the test MongoDB instance at `mongo-test.databases` on port `27018`.
+
+**How does this help?**
+- **Easier Environment Management**: You don’t have to change code every time you move between environments. Just select the right XML file for the environment you're in.
+- **Safer Deployments**: By keeping production and test settings in separate files, you avoid using test configurations (like a local database) in production by accident.
+- **Flexibility**: You can add as many environment-specific XML files as you need, e.g., `Staging.xml`, `Development.xml`, etc.
+
+**Real-Life Example**:  
+Think of this like having two different sets of keys for your car: one for weekdays (when you need access to work) and another for weekends (when you only need access to home). The car remains the same, but the keys (configuration) change based on your schedule (environment). Similarly, the application remains the same, but the configuration file changes based on whether it's in production or test mode.
 
 ---
-
-## 8. Conclusion
-
-This documentation outlines the fundamentals of Dependency Injection within our project and provides a guideline for new members to understand the service architecture. By following the provided structure, new services can be integrated smoothly, ensuring the modularity and testability of the codebase.
-
-For further questions or clarification, feel free to reach out to the team!
-
---- 
-
-This documentation format should help new members onboard effectively while providing clarity on how to navigate and contribute to the project. Feel free to customize any sections as necessary!
