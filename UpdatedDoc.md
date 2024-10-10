@@ -167,5 +167,5 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
 
 ---
 
-![Project screenshot](./images/FlowChart.png)
+![Project screenshot](./images/Flowchart.png)
 
