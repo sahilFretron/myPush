@@ -152,7 +152,7 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
    - Example: **DocumentService** validates vehicle documents.
 
 5. **Gateways Call External Services**  
-   - Services use gateways to interact with third-party APIs (e.g., mParivahan).
+   - Services use gateways to interact with other microservices (for instance: PartnerFleet Service with Document Service).
 
 6. **Produces and Consumes Data**  
    - Services can act as producers, sending messages to Kafka topics.
