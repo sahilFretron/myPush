@@ -114,8 +114,8 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
 
 ### Working
 
-1. **XMLs Contain the Configuration**  
-   - Store application settings (e.g., database details, API URLs).
+1. **XML Files**  
+   - Store configurations.
    - Include different files for various environments (e.g., `prod.xml`, `test.xml`).
 
 2. **Modules Provide Methods**  
