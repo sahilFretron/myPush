@@ -48,7 +48,7 @@ In a project with multiple configuration files, **XML Overriding** ensures that 
 2. **base.xml** (Common across all environments)
 3. **prod.xml** (Specific to the production environment)
 4. **test.xml** (Specific to the testing environment)
-5. **.env** file (Optional but has the highest priority)
+5. **.env** file
 
 ### How the Overriding Works:
 
@@ -142,7 +142,7 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
 2. **Request Middleware (Providers) Handles Trace ID**  
    - Checks for a Trace ID in the request.
    - If missing, generates a new Trace ID and adds it to the MDC for logging.
-   - Trace ID: A unique identifier assigned to each request, used for tracking and logging throughout the system. It allows developers to trace the flow of a request across various components, making debugging and monitoring easier.
+   - ```Trace ID:``` A unique identifier assigned to each request, used for tracking and logging throughout the system. It allows developers to trace the flow of a request across various components, making debugging and monitoring easier.
 
 3. **Resources Handle Routing**  
    - Routes the request to the appropriate resource (e.g., `VehicleResource` for `/vehicles`).
@@ -165,6 +165,10 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
 8. **Models Define the Data Structure**  
    - Models represent the data format used in the application.
    - Example: **Vehicle model** includes `vehicleId`, `registrationNumber`, etc.
+  
+9. **Response Middleware Adds Trace ID**  
+   - Before sending the response back to the client, a middleware checks the request's Trace ID.
+   - It adds the Trace ID to the response headers, ensuring that clients can correlate requests and responses.
 
 ---
 
