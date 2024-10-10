@@ -143,6 +143,7 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
    - Checks for a Trace ID in the request.
    - If missing, generates a new Trace ID and adds it to the MDC for logging.
    - ```Trace ID:``` A unique identifier assigned to each request, used for tracking and logging throughout the system. It allows developers to trace the flow of a request across various components, making debugging and monitoring easier.
+   - ```MDC (Mapped Diagnostic Context):``` MDC is a feature in logging frameworks that allows you to store contextual information (like Trace IDs) in a thread-local variable, enabling more detailed and structured logging that can be associated with specific requests or transactions, aiding in debugging and performance monitoring.
 
 3. **Resources Handle Routing**  
    - Routes the request to the appropriate resource (e.g., `VehicleResource` for `/vehicles`).
