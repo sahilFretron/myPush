@@ -142,5 +142,5 @@ Let's dive deeper into the explanation of each part of the project structure, fo
 
 ---
 
-![Project screenshot](./images/StructureFlowchart.jpg)
+![Project screenshot](./images/StructureFlowchart.png)
 
