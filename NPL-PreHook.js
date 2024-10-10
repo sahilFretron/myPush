@@ -1,5 +1,5 @@
 const rp = require('request-promise');
-const TOKEN = "Beaer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3Mjc2NzY0MjMsInVzZXJJZCI6ImExYzg1MWQ0LTZkMWItNGZiZi1hZDllLWRiNmJhOWViZTI3ZCIsImVtYWlsIjoiaGFyc2hpdC5ndXB0YUBmcmV0cm9uLmNvbSIsIm1vYmlsZU51bWJlciI6Ijg5NTUxMTcwMDMiLCJvcmdJZCI6ImUxMzE4MGU3LWY4NDktNDU2OC1hZDdlLTFhMjM3YTFhOGZiMyIsIm5hbWUiOiJIYXJzaGl0IEd1cHRhIiwib3JnVHlwZSI6IkZMRUVUX09XTkVSIiwiaXNHb2QiOnRydWUsInBvcnRhbFR5cGUiOiJiYXNpYyJ9.WqZFCkYsij4uMcJdQT_4C5imVU4194TjihhVzzCt1Zs";
+const TOKEN = "";
 
 async function getShWithCn(shId) {
     try {
