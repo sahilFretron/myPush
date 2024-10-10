@@ -108,7 +108,6 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
 - Repositories
 - Models
 - Application.kt
-- App Constants
 ```
 ---
 
