@@ -172,5 +172,50 @@ Once the conversion is complete, the overriding happens at the **hashmap level**
 
 ---
 
-![Project screenshot](./images/Flowchart.png)
+### Flowchart
+```mermaid
+graph TD
+    Request[Request] -->|Incoming| HttpServer[Http Server Started\nApplication KT]
+    HttpServer -->|Completed| Response[Response]
+    
+    EntryKeys[Entry Keys\nXML Files] -->|Provides Config| AppComponent
+    
+    subgraph AppComponent[App Component]
+        AppMethods[Provides Methods]
+        HttpModule[Http Module]
+    end
+    
+    AppComponent -->|Gives Configured| HttpServer
+    
+    HttpServer -->|Request Flow| RequestMiddleware[Request Middleware]
+    RequestMiddleware -->|Request Flow| APIEndpoint[API EndPoint\nResources]
+    
+    
+    
+    APIEndpoint -->|Response Flow| ResponseMiddleware[Response Middleware]
+    ResponseMiddleware -->|Response Flow| HttpServer
+    
+    APIEndpoint -->|Request Flow| Functions[Functions\nServices]
+    
+    
+    
+    subgraph DBLayer[Acts as Layer to connect with DB]
+        Repositories[Repositories]
+    end
+    DBLayer --> DB[(Database)]
+    DBLayer -->|Provides Data| Functions
+    
+    
+    Functions --> Gateways[Gateways]
+    Gateways --> ExternalServices[Other MicroServices/\nExternal Services]
 
+    Kafka --> Consumer[Consumer]
+    Consumer --> Functions
+
+    Functions --> Producer[Producer]
+    Producer --> Kafka
+    
+    subgraph Kafka
+        MessageBroker[Message Broker]
+    end
+```
