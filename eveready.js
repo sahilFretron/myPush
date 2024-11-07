@@ -2,7 +2,7 @@ const request = require('request-promise');
 const moment = require('moment');
 
 const baseApiUrl = 'https://apis.fretron.com';
-const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzA5NTg5NjUsInVzZXJJZCI6ImJvdHVzZXItLWEwNmNhYTU3LTlmMGEtNDEyMC05NDk5LTFjY2QyOGVlYzc1MSIsIm1vYmlsZU51bWJlciI6ImJvdHVzZXItLWEwNmNhYTU3LTlmMGEtNDEyMC05NDk5LTFjY2QyOGVlYzc1MSIsIm9yZ0lkIjoiZTkwZTkyNzMtMTRjYy00ZTczLTljOGUtMDk5ZGZjMTVjYzdiIiwibmFtZSI6IkludGVncmF0aW9uQm90Iiwib3JnVHlwZSI6IkZMRUVUX09XTkVSIiwiaXNHb2QiOmZhbHNlLCJwb3J0YWxUeXBlIjoiYmFzaWMifQ.k8InC25nksXm7UkONE480lUrwv9ceI1u-F9uN-VJuGg';
+const TOKEN = '';
 const orgId = 'e90e9273-14cc-4e73-9c8e-099dfc15cc7b'
 
 const data = {
