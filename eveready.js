@@ -2,7 +2,7 @@ const request = require('request-promise');
 const moment = require('moment');
 
 const baseApiUrl = 'https://apis.fretron.com';
-const TOKEN = '';
+const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzA5NTg5NjUsInVzZXJJZCI6ImJvdHVzZXItLWEwNmNhYTU3LTlmMGEtNDEyMC05NDk5LTFjY2QyOGVlYzc1MSIsIm1vYmlsZU51bWJlciI6ImJvdHVzZXItLWEwNmNhYTU3LTlmMGEtNDEyMC05NDk5LTFjY2QyOGVlYzc1MSIsIm9yZ0lkIjoiZTkwZTkyNzMtMTRjYy00ZTczLTljOGUtMDk5ZGZjMTVjYzdiIiwibmFtZSI6IkludGVncmF0aW9uQm90Iiwib3JnVHlwZSI6IkZMRUVUX09XTkVSIiwiaXNHb2QiOmZhbHNlLCJwb3J0YWxUeXBlIjoiYmFzaWMifQ.k8InC25nksXm7UkONE480lUrwv9ceI1u-F9uN-VJuGg';
 const orgId = 'e90e9273-14cc-4e73-9c8e-099dfc15cc7b'
 
 const data = {
@@ -16,31 +16,11 @@ const data = {
     "driverMobileNumber": "8591483735"
 }
 
-var sh = {
+const getShipmentSkeleton = () => ({
     "shipmentNumber": null,
     "consignments": [],
     "shipmentDate": null,
-    "shipmentStages": [
-        {
-            "hub": {},
-            "place": null,
-            "actualActivityStartTime": null,
-            "status": null,
-            "tripPoint": {
-                "purpose": "Pickup"
-            }
-        },
-        {
-            "hub": {},
-            "place": null,
-            "actualActivityStartTime": null,
-            "tripPoint": {
-                "purpose": "Delivery"
-            },
-            "status": null,
-            "eta": null
-        }
-    ],
+    "shipmentStages": [],
     "fleetInfo": {
         "device": {
             "imei": null,
@@ -70,11 +50,31 @@ var sh = {
     "uuid": null,
     "branch": null,
     "originalEdd": null
+});
+
+function validateDataFields(data) {
+    const requiredFields = [
+        "vehicleNumber",
+        "transporterCode",
+        "transporterName",
+        "plantCode",
+        "destinationCode",
+        "shipmentDate",
+        "driverName",
+        "driverMobileNumber"
+    ];
+
+    const missingFields = requiredFields.filter(field => !data[field]);
+    if (missingFields.length > 0) {
+        console.error("Validation failed. Missing or invalid fields:", missingFields.join(", "));
+        return false;
+    }
+    return true;
 }
 
-const getBPartnerByTpCode = async (transporterCode, TOKEN) => {
-    if (!transporterCode || !TOKEN) {
-        console.error("Missing transporterCode or TOKEN");
+const getBPartnerByTpCode = async (transporterCode, sh) => {
+    if (!transporterCode) {
+        console.error("Missing transporterCode");
         return null;
     }
     const apiUrl = `${baseApiUrl}/business-partners/v2/partner/by-name/ext-id/comp-code?externalId=${transporterCode}`;
@@ -93,16 +93,16 @@ const getBPartnerByTpCode = async (transporterCode, TOKEN) => {
         } else {
             console.warn("No response data found, setting default partner info.");
         }
-        return sh;
+        return true;
     } catch (error) {
         console.error("Error in getBPartnerByTpCode:", error.message);
         return null;
     }
 };
 
-const getPlace = async (placeId, stageIndex, TOKEN) => {
-    if (!placeId || isNaN(stageIndex) || !TOKEN) {
-        console.error("Invalid placeId, stageIndex, or TOKEN");
+const populateShipmentStages = async (placeId, purpose, sh) => {
+    if (!placeId || !purpose) {
+        console.error("Invalid placeId, purpose");
         return null;
     }
     let filters = encodeURIComponent(JSON.stringify({ "externalId.keyword": [placeId] }));
@@ -117,22 +117,30 @@ const getPlace = async (placeId, stageIndex, TOKEN) => {
     };
     try {
         const response = await request(options);
-        if (response && sh.shipmentStages) {
-            sh.shipmentStages[stageIndex].place = response[0] ;
-            // console.log("Updated PLACE at index", stageIndex);
-        } else {
-            console.warn(`Invalid stage index or no data found for placeId: ${placeId}`);
+        if (response[0] == null) {
+            throw new Error(`Place data for ${purpose} not found`);
         }
-        // console.log(JSON.stringify(sh));
+        sh.shipmentStages.push({
+            "hub": null,
+            "place": response[0],
+            "actualActivityStartTime": null,
+            "status": null,
+            "tripPoint": {
+                "purpose": purpose
+            },
+            "eta": null
+        })
+        return true;
     } catch (error) {
         console.error("Error in getPlace:", error.message);
         return null;
     }
 };
 
-const createShipment = async (shipment, TOKEN) => {
-    if (!shipment || !TOKEN) {
-        console.error("Invalid shipment data or TOKEN");
+
+const createShipment = async (sh) => {
+    if (!sh ) {
+        console.error("Invalid shipment data");
         return null;
     }
     const apiUrl = `${baseApiUrl}/shipment/v1/shipment`;
@@ -142,7 +150,7 @@ const createShipment = async (shipment, TOKEN) => {
         headers: {
             'Authorization': TOKEN
         },
-        body: shipment,
+        body: sh,
         json: true
     };
     try {
@@ -150,7 +158,7 @@ const createShipment = async (shipment, TOKEN) => {
         if (response && response.status === 200) {
             // console.log("Shipment created successfully:", response);
             if (sh.fleetInfo.driver && sh.fleetInfo.driver.mobileNumber) {
-                await sendConsent(sh.fleetInfo.driver.mobileNumber, TOKEN);
+                await sendConsent(sh.fleetInfo.driver.mobileNumber);
             } else {
                 console.warn("Driver mobile number missing, consent not sent.");
             }
@@ -163,9 +171,9 @@ const createShipment = async (shipment, TOKEN) => {
     }
 };
 
-const sendConsent = async (mobileNumber, TOKEN) => {
-    if (!mobileNumber || !TOKEN) {
-        console.error("Invalid mobile number or TOKEN for sending consent");
+const sendConsent = async (mobileNumber) => {
+    if (!mobileNumber) {
+        console.error("Invalid mobile number for sending consent");
         return;
     }
     const apiUrl = `${baseApiUrl}/lbs-manager/v1/lbs-consent/consent?number=${mobileNumber}&referenceResourceId=shipment-creation`;
@@ -180,7 +188,6 @@ const sendConsent = async (mobileNumber, TOKEN) => {
     try {
         const response = await request(options);
         if (response && response.status === 200) {
-            // console.log("Consent sent successfully:", JSON.stringify(response));
         } else {
             console.warn("Failed to send consent:", response);
         }
@@ -189,7 +196,7 @@ const sendConsent = async (mobileNumber, TOKEN) => {
     }
 };
 
-const setDetails = async (data) => {
+const setDetails = async (data, sh) => {
     if (!data || typeof data !== 'object') {
         console.error("Invalid data for setting details");
         return null;
@@ -201,40 +208,47 @@ const setDetails = async (data) => {
     }
     sh.shipmentDate = date.valueOf();
     sh.fleetInfo.driver = {
-        name: data.driverName || "Unknown Driver",
-        mobileNumber: data.driverMobileNumber || "Unknown Mobile"
+        name: data.driverName,
+        mobileNumber: data.driverMobileNumber
     };
     sh.fleetInfo.device = {
-        orgId: orgId || "Unknown Org ID",
-        imei: data.driverMobileNumber || "Unknown IMEI"
+        orgId: orgId,
+        imei: data.driverMobileNumber
     };
     sh.fleetInfo.vehicle = {
-        vehicleRegistrationNumber: data.vehicleNumber || "Unknown Vehicle Number"
+        vehicleRegistrationNumber: data.vehicleNumber
     };
-    const shNo = await createShipment(sh, TOKEN);
+    const shNo = await createShipment(sh);
     return shNo
 };
 
 async function executeAllFunctions() {
+    if (!validateDataFields(data)) {
+        console.error("Data validation failed. Exiting process.");
+        return;
+    }
+
     try {
         if (!data || typeof data !== 'object') {
             throw new Error("Missing or invalid input data for executing functions");
         }
-
-        const results = await Promise.all([
-            getPlace(data.plantCode, 0, TOKEN),
-            getPlace(data.destinationCode, 1, TOKEN),
-            getBPartnerByTpCode(data.transporterCode, TOKEN),
-        ]);
-
-        if (results.some(result => result === null)) {
-            console.warn("One or more API calls failed.");
-            return;
-        }
-        const shNo = await setDetails(data);
+        const shipment = getShipmentSkeleton();        
+        const plantPlace = await populateShipmentStages(data.plantCode, "Pickup", shipment);
+        if (!plantPlace) {
+            throw new Error("Failed to retrieve plantCode place information. Exiting process.");
+        }   
+        const destPlace = await populateShipmentStages(data.destinationCode, "Delivery", shipment)
+        if (!destPlace) {
+            throw new Error("Failed to retrieve destinationCode place information. Exiting process.");
+        }   
+        const bPartner = await getBPartnerByTpCode(data.transporterCode, shipment)
+        if (!bPartner) {
+            throw new Error("Failed to retrieve Business Partner. Exiting process.");
+        }   
+        const shNo = await setDetails(data, shipment);
         return shNo
     } catch (error) {
-        console.error("Error executing functions:", error.message);
+        console.error("Error executing function:", error.message);
     }
 }
 
@@ -245,6 +259,3 @@ executeAllFunctions().then(shipmentNumber => {
         console.warn("Failed to create shipment.");
     }
 });
-
-
-
