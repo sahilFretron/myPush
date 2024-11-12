@@ -99,4 +99,14 @@ graph TD;
         A23 --> A24{Found changes?}
         A24 -- Yes --> A25[Produce changes to Kafka]
         A25 --> A26[End]
-        A24 -- No --> A27[Log no
+        A24 -- No --> A27[Log no changes]
+        A27 --> A26
+    end
+
+    subgraph CalculatePositionParamsFlow
+        A28[calculatePositionParams currentData, lastData] --> A29{Data sizes equal?}
+        A29 -- Yes --> A30[Calculate position parameters]
+        A30 --> A31[Return updated records]
+        A29 -- No --> A32[Return current data]
+        A32 --> A31
+    end
