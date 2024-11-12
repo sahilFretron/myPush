@@ -67,28 +67,36 @@ graph TD;
         AO --> AP[End]
     end
 
+    subgraph applyRetryMechanismFlow
+        AK --> A1{Job type}
+        A1 -- BaseParser.tataFleetMan --> A2[Log retry start for TataFleetMan]
+        A2 --> A3[Get TataFleetMan token]
+        A3 --> A4{Is response status 200?}
+        A4 -- Yes --> A5[Parse token and update job URL]
+        A5 --> A6[Set job properties and log success]
+        A4 -- No --> A7[Log token status not 200]
+        A3 -- No --> A8[Log could not get token]
+
+        A1 -- BaseParser.nsTracker --> A9[Log retry start for NSTracker]
+        A9 --> A10[Get NSTracker token]
+        A10 --> A11{Is token not null?}
+        A11 -- Yes --> A12[Update job parameters with token]
+        A12 --> A13[Set job properties and log success]
+        A11 -- No --> A14[Log token retrieval failure]
+    end
+
     subgraph HandleDeleteCaseFlow
-        A7[handleDeleteCase job: IntegrationJob] --> AQ[Get last response]
-        AQ --> AR{Is last response null?}
-        AR -- Yes --> AS[Log error and return]
-        AR -- No --> AT[Delete devices from Kafka]
-        AT --> AU[Delete job and related data]
-        AU --> AV[End]
+        A15[handleDeleteCase job: IntegrationJob] --> A16[Get last response]
+        A16 --> A17{Is last response null?}
+        A17 -- Yes --> A18[Log error and return]
+        A17 -- No --> A19[Delete devices from Kafka]
+        A19 --> A20[Delete job and related data]
+        A20 --> A21[End]
     end
 
     subgraph ComparePreviousResponseFlow
-        A8[comparePreviousResponseAndProduceChanges] --> AW[Compare old and current vehicles]
-        AW --> AX{Found changes?}
-        AX -- Yes --> AY[Produce changes to Kafka]
-        AY --> AZ[End]
-        AX -- No --> BA[Log no changes]
-        BA --> AZ
-    end
-
-    subgraph CalculatePositionParamsFlow
-        A9[calculatePositionParams currentData, lastData] --> BB{Data sizes equal?}
-        BB -- Yes --> BC[Calculate position parameters]
-        BC --> BD[Return updated records]
-        BB -- No --> BE[Return current data]
-        BE --> BD
-    end
+        A22[comparePreviousResponseAndProduceChanges] --> A23[Compare old and current vehicles]
+        A23 --> A24{Found changes?}
+        A24 -- Yes --> A25[Produce changes to Kafka]
+        A25 --> A26[End]
+        A24 -- No --> A27[Log no
