@@ -1,4 +1,4 @@
-graph TD;
+flowchart TD
     A[Start] --> B[handleJobEvent(job: IntegrationJob)]
     B --> C{Is job active?}
     C -- Yes --> D[Execute job]
