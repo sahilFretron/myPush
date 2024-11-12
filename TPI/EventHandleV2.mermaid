@@ -70,7 +70,7 @@ flowchart TD
     BD --> BF[End]
     BE --> BF
 
-    A9[calculatePositionParams(currentData, lastData)] --> BG{Data sizes equal?}
+    A9[calculatePositionParams] --> BG{Data sizes equal?}
     BG -- Yes --> BH[Calculate position parameters]
     BH --> BI[Return updated records]
     BG -- No --> BJ[Return current data]
