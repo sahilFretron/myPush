@@ -4,20 +4,12 @@ graph TD;
     C -- Yes --> D[Execute job]
     D --> E{Job response status}
     E -- 200 --> F[handleSuccessCase]
-    F --> AI[Get last response]
-    AI --> AJ{Is execution type not JOB_TYPE_PREHOOK?}
-    AJ -- Yes --> AK[Get current vehicles, devices, positions]
-    AK --> AL[Compare previous response and produce changes]
-    AL --> AM[Produce positions to Kafka]
-    AJ -- No --> AN[Log skip for JOB_TYPE_PREHOOK]
-    AN --> AO[End]
-    AM --> AP[Update job schedule time]
     E -- 504 --> G[Get job meta]
     G --> H[Save job]
     H --> I[Schedule fix interval task]
     E -- Other --> J[handleErrorResponse]
     C -- No --> K[Remove scheduled task]
-    AP --> L[Update job schedule time]
+    F --> L[Update job schedule time]
     J --> L
     L --> M[Log job details]
     K --> M
