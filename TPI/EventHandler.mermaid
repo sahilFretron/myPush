@@ -1,0 +1,88 @@
+graph TD;
+    A[Start] --> B[handleJobEvent]
+    B --> C{Is job active?}
+    C -- Yes --> D[Execute job]
+    D --> E{Job response status}
+    E -- 200 --> F[handleSuccessCase]
+    E -- 504 --> G[Get job meta]
+    G --> H[Save job]
+    H --> I[Schedule fix interval task]
+    E -- Other --> J[handleErrorResponse]
+    C -- No --> K[Remove scheduled task]
+    F --> L[Update job schedule time]
+    J --> L
+    L --> M[Log job details]
+    K --> M
+    M --> N[End]
+
+    
+    A2[handlePrehookTypeJobWebHook] --> O[Get job by ID]
+    O --> P{Is job null?}
+    P -- Yes --> Q[Throw ResourceNotFoundException]
+    P -- No --> R[Update job event type to: update]
+    R --> S{Is status 200?}
+    S -- Yes --> T[handleSuccessCase]
+    S -- No --> U[Log error]
+    U --> V[handleErrorResponse]
+    T --> W[Update job schedule time]
+    W --> X[Log job details]
+    V --> X
+    X --> Y[End]
+
+    A3[handleErrorResponse] --> Z[Get job meta]
+    Z --> AA{Is fail count < max allowed?}
+    AA -- Yes --> AB{Is job type TataFleetMan or NSTracker?}
+    AB -- Yes --> AC[Apply retry mechanism]
+    AC --> AD[Schedule fix interval task]
+    AA -- No --> AE[Set need to send alert]
+    AE --> AF[Schedule next failure time]
+    AD --> AG[Update job and meta]
+    AF --> AG
+    AG --> AH[End]
+
+    A4[handleSuccessCase] --> AI[Get last response]
+    AI --> AJ{Is execution type not JOB_TYPE_PREHOOK?}
+    AJ -- Yes --> AK[Get current vehicles, devices, positions]
+    AK --> AL[Compare previous response and produce changes]
+    AL --> AM[Produce positions to Kafka]
+    AJ -- No --> AN[Log skip for JOB_TYPE_PREHOOK]
+    AN --> AO[End]
+    AM --> AP[Update job schedule time]
+    AP --> AQ[End]
+
+    A5[handleTpiFailureAlertEvent] --> AR[Get job metas needing alerts]
+    AR --> AS{Are there job metas?}
+    AS -- Yes --> AT[Send notifications for each job meta]
+    AT --> AU[Reset fail count and alert flag]
+    AU --> AV[End]
+    AS -- No --> AW[Log no job metas found]
+    AW --> AV
+
+    A6[handleScheduledTask] --> AX[Get action from task]
+    AX --> AY{Action type}
+    AY -- TPI_SCHEDULER_ACTION --> AZ[Get job by ID]
+    AZ --> BA[handleJobEvent]
+    AY -- TPI_FAILURE_ALERT_SCHEDULER_ACTION --> BB[handleTpiFailureAlertEvent]
+    BB --> BC[End]
+    BA --> BC
+
+    A7[handleDeleteCase] --> BD[Get last response]
+    BD --> BE{Is last response null?}
+    BE -- Yes --> BF[Log error and return]
+    BE -- No --> BG[Delete devices from Kafka]
+    BG --> BH[Delete job and related data]
+    BH --> BI[End]
+
+    A8[comparePreviousResponseAndProduceChanges] --> BJ[Compare old and current vehicles]
+    BJ --> BK{Found changes?}
+    BK -- Yes --> BL[Produce changes to Kafka]
+    BK -- No --> BM[Log no changes]
+    BL --> BN[End]
+    BM --> BN
+
+    A9[calculatePositionParams] --> BO{Data sizes equal?}
+    BO -- Yes --> BP[Calculate position parameters]
+    BP --> BQ[Return updated records]
+    BO -- No --> BR[Return current data]
+    BR --> BQ
+
