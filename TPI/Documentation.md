@@ -36,6 +36,39 @@ The `LifeCycleManager` manages the overall lifecycle of the application. It init
 
 ## 2. JobAndSchedulerConsumer
 
+```mermaid
+   flowchart
+    A[Start Consumer] --> B[Subscribe to Topics]
+    B --> C{Poll Messages}
+    C -->|Every 2000ms| D{Process Records}
+    D --> E{Check Topic Type}
+    
+    E -->|Scheduler Task Topic| F[Parse SchedulerTask]
+    F --> G[Handle Scheduled Task]
+    G --> H{Timeout Check}
+    H -->|>200ms| I[Log Warning]
+    H -->|≤200ms| J[Complete Processing]
+    
+    E -->|Job Topic| K[Parse IntegrationJob]
+    K --> L{Check Event Type}
+    L -->|deleted| M[Handle Delete Case]
+    L -->|other| N[Handle Job Event]
+    N --> O{Timeout Check}
+    O -->|>500ms| P[Log Warning]
+    O -->|≤500ms| Q[Complete Processing]
+    
+    J --> R[Update Last Poll Time]
+    Q --> R
+    M --> R
+    
+    R --> S{More Records?}
+    S -->|Yes| D
+    S -->|No| C
+    
+    C -->|Error| T[Log Error]
+    T --> C
+```
+
 ### Purpose
 
 The `JobAndSchedulerConsumer` listens for messages from Kafka topics that contain job events and scheduled tasks. It processes these messages to ensure that jobs are executed as required.
