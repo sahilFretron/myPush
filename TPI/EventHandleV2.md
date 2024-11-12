@@ -1,0 +1,43 @@
+graph TD;
+    A[Start] --> B[handleJobEvent(job: IntegrationJob)]
+    B --> C{Is job active?}
+    C -- Yes --> D[Execute job]
+    D --> E{Job response status}
+    E -- 200 --> F[handleSuccessCase(job, jobResponse)]
+    E -- 504 --> G[Schedule fix interval task]
+    E -- Other --> H[handleErrorResponse(job)]
+    C -- No --> I[Remove scheduled task]
+    F --> J[Update job schedule time]
+    G --> J
+    H --> J
+    J --> K[Log job details]
+    K --> L[End]
+
+    A2[handlePrehookTypeJobWebHook(jobId, status, error)] --> C2[Get job by ID]
+    C2 --> D2{Is status 200?}
+    D2 -- Yes --> F2[handleSuccessCase(job, jobExecutionResult)]
+    D2 -- No --> H2[handleErrorResponse(job)]
+    F2 --> J2[Update job schedule time]
+    H2 --> J2
+    J2 --> K2[Log job details]
+    K2 --> L2[End]
+
+    A3[handleErrorResponse(job: IntegrationJob)] --> A4[Get job meta]
+    A4 --> A5{Is fail count < max allowed?}
+    A5 -- Yes --> A6[Apply retry mechanism]
+    A6 --> A7[Schedule fix interval task]
+    A5 -- No --> A8[Set need to send alert]
+    A8 --> A9[Schedule next failure time]
+    A7 --> A10[Update job and meta]
+    A9 --> A10
+    A10 --> L3[End]
+
+    A4 --> A11[Log error]
+    A11 --> L3
+
+    A12[handleSuccessCase(job, response)] --> A13[Get last response]
+    A13 --> A14{Is execution type not JOB_TYPE_PREHOOK?}
+    A14 -- Yes --> A15[Compare responses]
+    A15 --> A16[Produce changes]
+    A14 -- No --> A17[Log skip]
+    A17 --> L4[End]
