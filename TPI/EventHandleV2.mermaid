@@ -39,7 +39,6 @@ graph TD;
         M
         N
         O
-        P
     end
 
     subgraph HandleSuccessCaseFlow
@@ -59,36 +58,37 @@ graph TD;
         AG --> AH{Is fail count < max allowed?}
         AH -- Yes --> AI{Is job type TataFleetMan or NSTracker?}
         AI -- Yes --> AJ[Apply retry mechanism]
-        AJ --> AK[Schedule fix interval task]
-        AH -- No --> AL[Set need to send alert]
-        AL --> AM[Schedule next failure time]
-        AK --> AN[Update job and meta]
-        AM --> AN
-        AN --> AO[End]
+        AJ --> AK[applyRetryMechanism job]
+        AK --> AL[Schedule fix interval task]
+        AH -- No --> AM[Set need to send alert]
+        AM --> AN[Schedule next failure time]
+        AL --> AO[Update job and meta]
+        AM --> AO
+        AO --> AP[End]
     end
 
     subgraph HandleDeleteCaseFlow
-        A7[handleDeleteCase job: IntegrationJob] --> AP[Get last response]
-        AP --> AQ{Is last response null?}
-        AQ -- Yes --> AR[Log error and return]
-        AQ -- No --> AS[Delete devices from Kafka]
-        AS --> AT[Delete job and related data]
-        AT --> AU[End]
+        A7[handleDeleteCase job: IntegrationJob] --> AQ[Get last response]
+        AQ --> AR{Is last response null?}
+        AR -- Yes --> AS[Log error and return]
+        AR -- No --> AT[Delete devices from Kafka]
+        AT --> AU[Delete job and related data]
+        AU --> AV[End]
     end
 
     subgraph ComparePreviousResponseFlow
-        A8[comparePreviousResponseAndProduceChanges] --> AV[Compare old and current vehicles]
-        AV --> AW{Found changes?}
-        AW -- Yes --> AX[Produce changes to Kafka]
-        AX --> AY[End]
-        AW -- No --> AZ[Log no changes]
-        AZ --> AY
+        A8[comparePreviousResponseAndProduceChanges] --> AW[Compare old and current vehicles]
+        AW --> AX{Found changes?}
+        AX -- Yes --> AY[Produce changes to Kafka]
+        AY --> AZ[End]
+        AX -- No --> BA[Log no changes]
+        BA --> AZ
     end
 
     subgraph CalculatePositionParamsFlow
-        A9[calculatePositionParams currentData, lastData] --> BA{Data sizes equal?}
-        BA -- Yes --> BB[Calculate position parameters]
-        BB --> BC[Return updated records]
-        BA -- No --> BD[Return current data]
-        BD --> BC
+        A9[calculatePositionParams currentData, lastData] --> BB{Data sizes equal?}
+        BB -- Yes --> BC[Calculate position parameters]
+        BC --> BD[Return updated records]
+        BB -- No --> BE[Return current data]
+        BE --> BD
     end
