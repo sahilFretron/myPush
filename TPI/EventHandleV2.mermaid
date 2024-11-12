@@ -54,7 +54,7 @@ flowchart TD
     AR --> AS{Action type}
     AS -- TPI_SCHEDULER_ACTION --> AT[Get job by ID]
     AT --> AU[handleJobEvent]
-    AS -- TPI_FAILURE_ALERT_SCHEDULER_ACTION --> AV[handleTpiFailureAlertEvent()]
+    AS -- TPI_FAILURE_ALERT_SCHEDULER_ACTION --> AV[handleTpiFailureAlertEvent]
     AV --> AW[End]
     AU --> AW
 
