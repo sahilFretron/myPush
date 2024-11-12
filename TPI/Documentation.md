@@ -1,8 +1,4 @@
-# Logistics Management Application Overview
-
-## Introduction
-
-This document provides an overview of the core components of a logistics management application, focusing on the `LifeCycleManager`, `JobAndSchedulerConsumer`, and `EventHandler`. These components work together to manage job scheduling, processing, and error handling in a Kafka-based architecture.
+# TPI - Third Party Integeration
 
 ## 1. LifeCycleManager
 
