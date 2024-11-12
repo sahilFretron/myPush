@@ -18,7 +18,7 @@ graph TD;
     A2[handlePrehookTypeJobWebHook] --> O[Get job by ID]
     O --> P{Is job null?}
     P -- Yes --> Q[Throw ResourceNotFoundException]
-    P -- No --> R[Update job event type to "update"]
+    P -- No --> R[Update job event type to: update]
     R --> S{Is status 200?}
     S -- Yes --> T[handleSuccessCase]
     S -- No --> U[Log error]
