@@ -40,7 +40,7 @@ flowchart TD
     AA -->|BaseParse:tataFleetMan or nsTracker| AB[Apply Retry Mechanism]
     AA -->|Other| AC[Schedule Next Attempt]
     
-    Z -->|>= Max Allowed| AD[Set Need Alert]
+    Z -->|Max Limit Reached| AD[Set Need Alert]
     AD --> AE[Update Schedule Time]
     AE --> AF[Set Event Type Update]
     
