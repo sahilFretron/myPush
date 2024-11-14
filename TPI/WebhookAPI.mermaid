@@ -14,12 +14,10 @@ flowchart TD
     H -->|status = 200| I[Handle Success Case]
     I --> J{Check Job Type}
     J --> K[Process TPI Data]
-    P[Update TPI Data Packet]
     
     %% Common Success Steps
-    J --> P
-    P --> Q[Update Job Meta]
-    Q --> R[Reset Fail Count]
+    J --> Q[Update Job Meta]
+    Q3 --> R[Reset Fail Count]
     R --> S[Set Alert False]
     S --> T[Update Schedule Time]
     T --> U[Save Job]
@@ -56,7 +54,7 @@ flowchart TD
         O --> O1[Clean IMEI]
         O1 --> O2[Produce to Kafka]
     end
-        O2 --> P
+        O2 --> Q
     
     %% Subgraph for Job Meta Updates
     subgraph Job Metadata
