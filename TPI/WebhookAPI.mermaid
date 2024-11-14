@@ -13,6 +13,10 @@ flowchart TD
     %% Success Flow
     H -->|status = 200| I[Handle Success Case]
     I --> J{Check Job Type}
+    
+    %% Subgraph if Job Type is not Prehook
+    subgraph NotPrehook
+    
     J -->|Not Prehook| K[Process TPI Data]
     
     K --> L{Check DisableVehicleSync}
@@ -21,9 +25,10 @@ flowchart TD
     
     M & N --> O[Process Positions]
     O --> P[Update TPI Data Packet]
+    end
     
     %% Common Success Steps
-    I --> P
+    J --> P
     P --> Q[Update Job Meta]
     Q --> R[Reset Fail Count]
     R --> S[Set Alert False]
