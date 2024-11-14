@@ -47,7 +47,7 @@ flowchart TD
     V & AI --> End([Return Response])
     
     %% Subgraph for Position Processing
-    subgraph Position Processing
+    subgraph 
         
         K --> L{Check DisableVehicleSync}
         L -->|false| M[Compare & Process Changes]
