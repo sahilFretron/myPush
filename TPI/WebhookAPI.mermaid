@@ -37,7 +37,7 @@ flowchart TD
     
     Y --> Z{Check Fail Count}
     Z -->|< Max Allowed| AA{Check Job Type}
-    AA -->|Special Type| AB[Apply Retry Mechanism]
+    AA -->|BaseParse:tataFleetMan or nsTracker| AB[Apply Retry Mechanism]
     AA -->|Other| AC[Schedule Next Attempt]
     
     Z -->|>= Max Allowed| AD[Set Need Alert]
