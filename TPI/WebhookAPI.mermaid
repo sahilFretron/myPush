@@ -13,12 +13,6 @@ flowchart TD
     %% Success Flow
     H -->|status = 200| I[Handle Success Case]
     I --> J{Check Job Type}
-    J -->|Not Prehook| K[Process TPI Data]
-    K --> L{Check DisableVehicleSync}
-    L -->|false| M[Compare & Process Changes]
-    L -->|true| N[Skip Vehicle Sync]
-    
-    M & N --> O[Process Positions]
     O --> P[Update TPI Data Packet]
     
     %% Common Success Steps
@@ -53,6 +47,11 @@ flowchart TD
     
     %% Subgraph for Position Processing
     subgraph Position Processing
+        J -->|Not Prehook| K[Process TPI Data]
+        K --> L{Check DisableVehicleSync}
+        L -->|false| M[Compare & Process Changes]
+        L -->|true| N[Skip Vehicle Sync]
+        M & N --> O[Process Positions]
         O --> O1[Clean IMEI]
         O1 --> O2[Produce to Kafka]
     end
