@@ -23,6 +23,7 @@ flowchart TD
     O --> P[Update TPI Data Packet]
     
     %% Common Success Steps
+    I --> P
     P --> Q[Update Job Meta]
     Q --> R[Reset Fail Count]
     R --> S[Set Alert False]
