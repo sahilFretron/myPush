@@ -53,8 +53,9 @@ flowchart TD
         M & N --> O[Process Positions]
         O --> O1[Clean IMEI]
         O1 --> O2[Produce to Kafka]
+        O2 --> P[Upset TPI Data]
     end
-        O2 --> Q
+        P --> Q
         Q --> Q1[Update Last Schedule]
         Q1 --> Q2[Update Next Schedule]
         Q2 --> Q3[Update Fail Count]
