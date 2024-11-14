@@ -14,7 +14,7 @@ flowchart TD
     H -->|status = 200| I[Handle Success Case]
     I --> J{Check Job Type}
     J -->|Not Prehook| K[Process TPI Data]
-    O --> P[Update TPI Data Packet]
+    P[Update TPI Data Packet]
     
     %% Common Success Steps
     J --> P
@@ -55,6 +55,7 @@ flowchart TD
         M & N --> O[Process Positions]
         O --> O1[Clean IMEI]
         O1 --> O2[Produce to Kafka]
+        O2 --> P
     end
     
     %% Subgraph for Job Meta Updates
