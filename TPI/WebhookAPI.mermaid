@@ -16,9 +16,7 @@ flowchart TD
     
     %% Subgraph if Job Type is not Prehook
     subgraph NotPrehook
-    
     J -->|Not Prehook| K[Process TPI Data]
-    
     K --> L{Check DisableVehicleSync}
     L -->|false| M[Compare & Process Changes]
     L -->|true| N[Skip Vehicle Sync]
