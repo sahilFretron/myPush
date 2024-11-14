@@ -51,11 +51,6 @@ flowchart TD
     %% Final Steps
     V & AI --> End([Return Response])
     
-    %% Error Handling
-    Process -->|Exception| ErrorLog[Log Error]
-    ErrorLog --> ErrorUpdate[Set Event Type Update]
-    ErrorUpdate --> End
-    
     %% Subgraph for Position Processing
     subgraph Position Processing
         O --> O1[Clean IMEI]
