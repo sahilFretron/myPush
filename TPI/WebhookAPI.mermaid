@@ -55,13 +55,9 @@ flowchart TD
         O1 --> O2[Produce to Kafka]
     end
         O2 --> Q
-    
-    %% Subgraph for Job Meta Updates
-    subgraph Job Metadata
         Q --> Q1[Update Last Schedule]
         Q1 --> Q2[Update Next Schedule]
         Q2 --> Q3[Update Fail Count]
-    end
     
     %% Styling
     classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px
