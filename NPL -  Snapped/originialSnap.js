@@ -1,6 +1,6 @@
 import rp from 'request-promise';
 
-const external_api_token_v3 = '5b3ce3597851110001cf6248b4060853ac754ee5b656fe9d4e4968ae' // HARSHIT
+const external_api_token_v3 = '' // HARSHIT
 async function _snapCoordinatesToRoad(coordinates) {
     const url = 'https://api.openrouteservice.org/v2/snap/driving-car/json';
     const payload = {
