@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const baseApiUrl = 'https://apis.fretron.com';
 const filters = encodeURIComponent(JSON.stringify({ "__version": 2 }));
-const TOKEN = 'Beaer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzA3MDMxNTEsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiIwNzAwMWNiMS03MGZjLTRmMDQtOGE0NS1mZDA2YjkzNmIyYTAiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.afk-0IwF3XaCeRqtbV9CEr6sKVZWw7ptZCdcu6vAsDs';
+const TOKEN = '';
 
 const shipmentNumbers = [
     'FRETSH0035564'
