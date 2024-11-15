@@ -10,7 +10,7 @@ function callApi(payload) {
         uri: API_URL,
         body: payload,
         headers: {
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE1NjYxNTEsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiI0NmMwNzM2My1jYzUxLTRjYWItOWQxMC1iYmUxNTczZGEyZDgiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.HE4_Dmk3EGvlKjPWYLwRjM58Wv6nSb-djL02QU_Z5s8'
+            'Authorization': ''
         },
         json: true
     };
