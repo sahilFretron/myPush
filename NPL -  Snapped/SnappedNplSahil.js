@@ -1,7 +1,7 @@
 const rp = require('request-promise');
 const maxRadius = 5000; 
 const radiusIncrement = 500;
-const external_api_token_v3 = '5b3ce3597851110001cf6248b4060853ac754ee5b656fe9d4e4968ae'
+const external_api_token_v3 = ''
 let yourPlaceObjects = [
     {
     "hubId": null,
