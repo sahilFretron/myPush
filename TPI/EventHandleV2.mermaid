@@ -9,7 +9,7 @@ graph TD
     G --> H{Job response status}
     H -- 200 --> I[handleSuccessCase job, jobResponse]
     H -- 504 --> J[Get job meta]
-    J --> K[Save job]Start([Start]) --> 
+    J --> K[Save job]Start([Start])
     K --> L[Schedule fix interval task]
     H -- Other --> M[handleErrorResponse job]
     F -- No --> N[Remove scheduled task]
