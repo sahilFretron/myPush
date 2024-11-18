@@ -212,8 +212,8 @@ Processes based on integration type:
 
 
 
-mermaid
-```
+
+```mermaid
 flowchart
     Start([Webhook Request]) --> A[Parse Request JSON]
     A --> B{Extract Data}
