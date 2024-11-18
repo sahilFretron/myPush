@@ -212,10 +212,9 @@ Processes based on integration type:
 
 
 
-
-
-flowchart TD
+mermaid
 ```
+flowchart
     Start([Webhook Request]) --> A[Parse Request JSON]
     A --> B{Extract Data}
     B --> |jobId| C[Job ID]
