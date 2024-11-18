@@ -4,7 +4,7 @@ const ExcelJS = require('exceljs');
 // API base URL and headers
 const API_URL = 'https://apis.fretron.com/shipment-view/bpartners/partners';
 const API_HEADERS = {
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzE5MTM1NjQsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiJmYzVlNzM0YS0yODc4LTQ1ZTUtODcyYS0xNDMzOGQ1NTc4YzYiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0._iY4JdZkx0CWKdu9aGpfuFcLfoiuyG5PvG2K5487t0o',
+    'Authorization': '',
     'Content-Type': 'application/json'
 };
 
