@@ -277,10 +277,10 @@ flowchart
         Q2 --> Q3[Update Fail Count]
     
     %% Styling
-    classDef process fill:#e1f5fe,stroke:#01579b,stroke-width:2px
-    classDef decision fill:#fff3e0,stroke:#ff6f00,stroke-width:2px
-    classDef error fill:#ffebee,stroke:#c62828,stroke-width:2px
-    classDef success fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px
+    classDef process stroke:#01579b,stroke-width:2px
+    classDef decision stroke:#ff6f00,stroke-width:2px
+    classDef error stroke:#c62828,stroke-width:2px
+    classDef success stroke:#2e7d32,stroke-width:2px
     
     class A,K,M,N,O,P,Q,R,S,T,U,V process
     class H,J,L,Z,AA decision
