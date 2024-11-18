@@ -110,3 +110,57 @@ graph TD
         A29 -- No --> A32[Return current data]
         A32 --> A31
     end
+
+
+    subgraph JobExecutor
+        Init[Initialize JobExecutionResult]
+        Init --> CheckType{Check ExecutionType}
+        
+        %% Prehook Flow
+        CheckType -->|PREHOOK| Prehook[Call applyPrehook]
+        Prehook --> WebhookCheck{Is Webhook Active?}
+        WebhookCheck -->|Yes| ReturnRetry[Return Status 504]
+        WebhookCheck -->|No| ProcessPrehook{Process Prehook Response}
+        ProcessPrehook -->|Response null| PrehookError[Set Error Status 401]
+        ProcessPrehook -->|Status 200| PrehookSuccess[Set Success Status 200]
+        ProcessPrehook -->|Other Status| PrehookFail[Set Error Status 401]
+        
+        %% Main Job Flow
+        CheckType -->|Other| JobType{Check Job Type}
+        
+        JobType -->|etransSolutions| EtransSol[Get EtransSolutions Vehicle List]
+        JobType -->|nsTracker| NSTracker[Get NSTracker Vehicle Location]
+        JobType -->|etrans| Etrans[Execute GET Request]
+        JobType -->|etransTrackInfo| EtransTrack[Get Etrans Track Info]
+        JobType -->|trackingExperts| TrackExp{Check Request Method}
+        JobType -->|other| OtherType{Check Request Method}
+        
+        TrackExp -->|POST| TrackPost[Execute POST Request]
+        TrackExp -->|other| TrackError[Set Error Status 400]
+        
+        OtherType -->|GET| ExecGet[Execute GET Request]
+        OtherType -->|POST| ExecPost[Execute POST Request]
+        OtherType -->|PUT| ExecPut[Execute PUT Request]
+        OtherType -->|other| MethodError[Set Error Status 400]
+        
+        %% Response Processing
+        EtransSol & NSTracker & Etrans & EtransTrack & TrackPost & ExecGet & ExecPost & ExecPut --> ProcessResp{Process Response}
+        
+        ProcessResp -->|Response null| NullError[Set Error Status 400]
+        ProcessResp -->|Status 200| ParseRecords[Parse Vehicle Records]
+        ProcessResp -->|Other Status| ResponseError[Set Error Status 401]
+        
+        ParseRecords --> RecordsCheck{Records Found?}
+        RecordsCheck -->|Yes| ProcessPositions[Process Positions]
+        RecordsCheck -->|No| ParseError[Throw VehicleParsingException]
+        
+        ProcessPositions --> PositionsCheck{Positions Valid?}
+        PositionsCheck -->|Yes| Success[Set Success Status 200]
+        PositionsCheck -->|No| PositionsError[Set Error Status 400]
+        
+        %% Error Handling
+        ParseError --> CatchError[Set Error Status 400]
+        
+        %% Final Steps
+        Success & PrehookSuccess & PrehookError & PrehookFail & NullError & ResponseError & PositionsError & CatchError & ReturnRetry --> Return([Return Result])
+    end
