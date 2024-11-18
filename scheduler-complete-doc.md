@@ -26,7 +26,7 @@ flowchart TD
     I --> J[Set new scheduleTime]
     J --> K[Set taskId]
     H -- no --> K
-    G -- future --> K
+    G --> K
     K --> L{Check registeredTopics}
     L -- null --> M[Initialize empty list]
     L -- not null --> N[Save Task]
