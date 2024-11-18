@@ -129,121 +129,45 @@ val monthlyTask = SchedulerTask(
 )
 ```
 
-## 4. State Management
+### Schedule Type Impacts
 
-### 4.1 State Transitions
+1. **AFTER_INTERVAL**
+   - Required: `interval`
+   - Impact: Task reschedules after fixed interval
+   - Next Schedule = currentScheduleTime + interval
 
-#### Registration Phase
-```kotlin
-// Basic validation
-if (task.isAutoSchedulable) {
-    requireNotNull(task.scheduleType) { "Schedule type required" }
-    validateScheduleTypeParameters(task)
-} else {
-    requireNotNull(task.scheduleTime) { "Schedule time required" }
-}
-```
+2. **DAILY**
+   - Required: `timeOfDay`
+   - Impact: Executes daily at specified time
+   - Rolls over to next day if current time is past
 
-#### Execution Phase
-```kotlin
-when (task.scheduleType) {
-    "DAILY_AT_HOUR" -> calculateNextDailyTime(task.dayHours)
-    "WEEKLY" -> calculateNextWeeklyTime(task.weekDays, task.timeOfDay)
-    // Other schedule types...
-}
-```
+3. **WEEKLY**
+   - Required: `weekDays`, `timeOfDay`
+   - Impact: Executes on specified days at given time
+   - Calculates next occurrence based on current weekday
 
-## 5. Implementation Guidelines
+4. **DAILY_AT_HOUR**
+   - Required: `dayHours`
+   - Impact: Multiple executions per day at specified hours
+   - Sorts hours for sequential execution
 
-### 5.1 Error Prevention
+5. **DAILY_AT_TIME**
+   - Required: `timesOfDay`
+   - Impact: Multiple executions at specific times daily
+   - Sorts times for sequential execution
 
-#### Required Field Validation
-```kotlin
-fun validateSchedulerTask(task: SchedulerTask) {
-    when (task.scheduleType) {
-        "DAILY_AT_HOUR" -> {
-            require(!task.dayHours.isNullOrEmpty()) {
-                "Must have at least one hour of day"
-            }
-        }
-        // Other validations...
-    }
-}
-```
+6. **MONTHLY**
+   - Required: `datesOfMonth`, `timesOfDay`
+   - Impact: Executes on specified dates at given times
+   - Handles month rollover
 
-#### Time Calculations
-```kotlin
-fun calculateNextScheduleTime(task: SchedulerTask): Long {
-    return when (task.scheduleType) {
-        "AFTER_INTERVAL" -> task.scheduleTime + task.interval
-        "DAILY_AT_HOUR" -> getNextScheduledHour(task.dayHours)
-        // Other calculations...
-    }
-}
-```
+### Validation Rules
 
-### 5.2 Best Practices
+1. **Auto-schedulable Tasks**
+   - Must have valid `scheduleType`
+   - Must have required properties for chosen type
+   - Validates schedule-specific parameters
 
-1. **Task Creation**
-   - Always generate taskId using the defined pattern
-   - Initialize empty lists for null collections
-   - Validate schedule parameters before saving
-
-2. **Schedule Management**
-   - Sort time arrays for efficient next-time calculation
-   - Handle timezone conversions consistently
-   - Consider buffer time for execution windows
-
-3. **Error Handling**
-   - Validate input parameters thoroughly
-   - Handle edge cases in time calculations
-   - Implement retry mechanisms for failed tasks
-
-## 6. Performance Considerations
-
-### 6.1 Data Storage
-```kotlin
-// Recommended indexes
-{
-    "taskId": 1,          // Unique
-    "scheduleTime": 1,    // Range queries
-    "resourceType": 1,    // Filtering
-    "isAutoSchedulable": 1 // Type queries
-}
-```
-
-### 6.2 Time Complexity
-- Task Retrieval: O(1) using taskId
-- Schedule Calculation:
-  - Simple patterns (AFTER_INTERVAL): O(1)
-  - Complex patterns (MONTHLY): O(n) where n = dates × times
-
-### 6.3 Resource Usage
-- Memory footprint varies by schedule type
-- Consider batch processing for high-volume periods
-- Implement pagination for task listings
-
-## 7. Common Use Cases
-
-### 7.1 Document Management
-```kotlin
-// Document expiry
-val expiryTask = SchedulerTask(
-    resourceType = "Registry-Manager-Resource",
-    action = "document.expire.action",
-    scheduleTime = futureTimestamp,
-    isAutoSchedulable = false
-)
-```
-
-### 7.2 Reporting
-```kotlin
-// Daily reports
-val reportTask = SchedulerTask(
-    resourceType = "ISSUE",
-    action = "Issue_Summary",
-    scheduleType = "DAILY_AT_HOUR",
-    dayHours = listOf(9),
-    isAutoSchedulable = true
-)
-```
+2. **Non-auto-schedulable Tasks**
+   - Must have valid `scheduleTime`
+   - No additional scheduling parameters required
