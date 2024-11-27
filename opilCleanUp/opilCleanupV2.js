@@ -176,7 +176,6 @@ async function deleteAndLog(uri, id, logFileName, moduleName) {
     } catch (error) {
         console.error(`Error Deleting ${moduleName}: ${id}:`, error.message);
         logToFile(logFileName, `Error Deleting ${moduleName}: ${id}: ${error.message}`);
-        throw error
     }
 }
 
