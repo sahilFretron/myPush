@@ -1,5 +1,5 @@
-const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzI3MTIxODgsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiI0OTViODcyOC1jNzYxLTRmYTctODNmZS1kYjc1YTdkNjMyMjEiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.FLXMp5PPadPavmDi8xXFG6fSbonPYYPFbBFexJlfLe8';
-const orgId = '495b8728-c761-4fa7-83fe-db75a7d63221'
+// const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzI3NzA5NjQsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiJlOTBlOTI3My0xNGNjLTRlNzMtOWM4ZS0wOTlkZmMxNWNjN2IiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.90kA2GDEJSjfSHeC14EpaLEWz274DWyvTV3V4aSBYfE';
+// const orgId = 'e90e9273-14cc-4e73-9c8e-099dfc15cc7b'
 const FRT_PUB_BASE_URL = "https://apis.fretron.com"
 const rp = require('request-promise')
 const moment = require('moment');
@@ -7,10 +7,10 @@ const moment = require('moment');
 
 const requestBody = {
     "vehicleNumber": "DL8SDK1212", // Subjected to update
-    "transporterCode": "TEST1243", // Subjected to update
-    "transporterName": "SAHILII",// Subjected to update
-    "plantCode": "gurugramtest",
-    "destinationCode": "gurugramtest1",
+    "transporterCode": "3014", // Subjected to update
+    "transporterName": "SAHILTEST",// Subjected to update
+    "plantCode": "3012",
+    "destinationCode": "3013",
     "shipmentDate": "27-11-2024",
     "driverName": "SAHILDRIIIIVER", // Subjected to update
     "driverMobileNumber": "7056070569", // Subjected to update
@@ -90,10 +90,10 @@ const populateBPartner = async (transporterCode, sh) => {
     };
     try {
         const response = await rp(options);
-        if (response && typeof response === 'object') {
+        if (response.status == 200 && response.data  != null) {
             sh.fleetInfo.fleetOwner = response.data;
         } else {
-            console.log("No response data found, setting default partner info.");
+            console.log("No BP data found" + response.error);
         }
         return true;
     } catch (error) {
@@ -107,8 +107,7 @@ const populateShipmentStages = async (placeId, purpose, sh) => {
         console.log("Invalid placeId, purpose");
         return null;
     }
-    let filters = encodeURIComponent(JSON.stringify({ "externalId.keyword": [placeId] }));
-    const apiUrl = `${FRT_PUB_BASE_URL}/shipment-view/places/page/places?filters=${filters}`;
+    const apiUrl = `${FRT_PUB_BASE_URL}/business-partners/v2/partner/by-name/ext-id/comp-code?externalId=${placeId}`;
     const options = {
         method: 'GET',
         uri: apiUrl,
@@ -119,22 +118,23 @@ const populateShipmentStages = async (placeId, purpose, sh) => {
     };
     try {
         const response = await rp(options);
-        if (response[0] == null) {
+        if (response.status == 200 && response.data != null && response.data.places[0]) {
+            sh.shipmentStages.push({
+                "hub": null,
+                "place": response.data.places[0],
+                "actualActivityStartTime": null,
+                "status": null,
+                "tripPoint": {
+                    "purpose": purpose
+                },
+                "eta": null
+            })
+            return true;
+        } else {
             throw new Error(`Place data for ${purpose} not found`);
         }
-        sh.shipmentStages.push({
-            "hub": null,
-            "place": response[0],
-            "actualActivityStartTime": null,
-            "status": null,
-            "tripPoint": {
-                "purpose": purpose
-            },
-            "eta": null
-        })
-        return true;
     } catch (error) {
-        console.log("Error in getPlace:", error.message);
+        console.log(`Error in getting Business Partner with ${purpose}:`, error.message);
         return null;
     }
 };
@@ -327,7 +327,7 @@ async function executeAllFunctions() {
                     throw new Error("Failed to Update shipment.");
                 }
             } else {
-                console.log("Shipment Already Exists with Provided Values")
+                console.log("Shipment Already Exists with Provided Field Values")
             }
         } else {
             const shipment = getShipmentSkeleton();
