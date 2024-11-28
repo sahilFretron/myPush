@@ -100,14 +100,43 @@ taskId = ${resourceId}_${resourceType}_${action}
 - Document task: `"70f54760-37fb-4477-8813-641abf1140de_Registry-Manager-Resource_document.expire.action"`
 - Report task: `"a14614b6-9f27-4738-b8e9-32bcbc0ddb17_ISSUE_Issue_Summary"`
 
-#### Action Data and Queue Mechanisms
-**Queue After Completion (queue_after_completion)**
+**Action: Queue After Completion (queue_after_completion)**
 - Used in scenarios without an immediate service consumer
 - Task lifecycle:
   1. Task is created but cannot be immediately processed
   2. Saved in completed task repository
   3. Timer-based mechanism periodically checks and processes tasks
 - Currently implemented for specific resource types (e.g., misreport)
+
+####**ACTION DATA**
+
+**Definition:**
+Action Data is a flexible metadata payload that provides additional context or parameters specific to the task's execution requirements. It allows services to include custom information needed to process a task effectively.
+
+**Purpose:**
+- Provide service-specific metadata for task execution
+- Support dynamic configuration of tasks
+- Enable passing additional context without modifying core task structure
+
+**Characteristics:**
+- Typically a JSON or key-value structure
+- Service-specific and optional
+- Can contain complex nested information
+
+**Example Scenarios:**
+
+1. **Document Processing Service**
+```json
+{
+    "taskId": "70f54760-37fb-4477-8813-641abf1140de_Registry-Manager-Resource_document.expire.action",
+    "actionData": {
+        "documentId": "doc123",
+        "expirationPolicy": "archiveAndDelete",
+        "notificationEmails": ["admin@example.com"],
+        "retentionPeriod": "30d"
+    }
+}
+```
 
 ## 3. Scheduling Patterns
 
