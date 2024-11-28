@@ -1,5 +1,5 @@
-// const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzI3NzA5NjQsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiJlOTBlOTI3My0xNGNjLTRlNzMtOWM4ZS0wOTlkZmMxNWNjN2IiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.90kA2GDEJSjfSHeC14EpaLEWz274DWyvTV3V4aSBYfE';
-// const orgId = 'e90e9273-14cc-4e73-9c8e-099dfc15cc7b'
+const TOKEN = '';
+const orgId = 'e90e9273-14cc-4e73-9c8e-099dfc15cc7b'
 const FRT_PUB_BASE_URL = "https://apis.fretron.com"
 const rp = require('request-promise')
 const moment = require('moment');
