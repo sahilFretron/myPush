@@ -111,7 +111,7 @@ taskId = ${resourceId}_${resourceType}_${action}
 ### 2.3 Action Data
 
 **Definition:**
-Action Data is a flexible metadata payload that provides additional context or parameters specific to the task's execution requirements. It allows services to include custom information needed to process a task effectively.
+Action Data is a metadata payload that provides additional context or parameters specific to the task's execution requirements. It allows services to include custom information needed to process a task effectively.
 
 **Purpose:**
 - Provide service-specific metadata for task execution
