@@ -1,7 +1,7 @@
 const rp = require('request-promise');
 const fetchPlacesUrl = 'https://apis.fretron.com/shipment-view/places/page/places?filters=%7B%22category.keyword%22%3A%5B%5D%2C%22isOwned%22%3Afalse%7D&search='
 const FRT_BASE_URL = 'https://apis.fretron.com'
-const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzI2OTM1MzUsInVzZXJJZCI6ImJvdHVzZXItLWRhNWY0MzFmLTQzYzMtNDdhYi04NTQ4LTRhNTZjYjExNjdmYiIsIm1vYmlsZU51bWJlciI6ImJvdHVzZXItLWRhNWY0MzFmLTQzYzMtNDdhYi04NTQ4LTRhNTZjYjExNjdmYiIsIm9yZ0lkIjoiYTliMjEzMzQtYWY0Yi00ZTZjLTg3YWUtODU5YTJiMTIzN2JlIiwibmFtZSI6IkNMRUFOVVAiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6ZmFsc2UsInBvcnRhbFR5cGUiOiJiYXNpYyJ9.bZr3BWrKYQp_iZJOyw56B6WWI212Tdvbe7kfnpbwqc8'
+const TOKEN = ''
 const fs = require('fs');
 
 function logToFile(filename, message) {
