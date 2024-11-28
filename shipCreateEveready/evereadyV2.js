@@ -68,7 +68,7 @@ function validateDataFields(data) {
 
     const missingFields = requiredFields.filter(field => !data[field]);
     if (missingFields.length > 0) {
-        console.log("Validation failed. Missing or invalid fields:", missingFields.join(", "));
+        console.log("Validation failed. Missing or invalid fields: " + missingFields.join(", "));
         return false;
     }
     return true;
@@ -90,14 +90,14 @@ const populateBPartner = async (transporterCode, sh) => {
     };
     try {
         const response = await rp(options);
-        if (response.status == 200 && response.data  != null) {
+        if (response && typeof response === 'object') {
             sh.fleetInfo.fleetOwner = response.data;
         } else {
-            console.log("No BP data found" + response.error);
+            console.log("No response data found, setting default partner info.");
         }
         return true;
     } catch (error) {
-        console.log("Error in getBPartnerByTpCode:", error.message);
+        console.log("Error in getBPartnerByTpCode: " + error.message);
         return null;
     }
 };
@@ -134,7 +134,7 @@ const populateShipmentStages = async (placeId, purpose, sh) => {
             throw new Error(`Place data for ${purpose} not found`);
         }
     } catch (error) {
-        console.log(`Error in getting Business Partner with ${purpose}:`, error.message);
+        console.log(`Error in getting Business Partner with ${purpose} :` + error.message);
         return null;
     }
 };
@@ -164,10 +164,10 @@ const createShipment = async (sh) => {
             }
             return response.data.shipmentNumber
         } else {
-            console.log("Failed to create shipment:", response);
+            console.log("Failed to create shipment:" + response);
         }
     } catch (error) {
-        console.log("Error in createShipment:", error.message);
+        console.log("Error in createShipment:" + error.message);
     }
 };
 
@@ -189,10 +189,10 @@ const sendConsent = async (mobileNumber, referenceId) => {
         const response = await rp(options);
         if (response && response.status === 200) {
         } else {
-            console.log("Failed to send consent:", response);
+            console.log("Failed to send consent:" + response.error);
         }
     } catch (error) {
-        console.log("Error in sendConsent:", error.message);
+        console.log("Error in sendConsent:" + error.message);
     }
 };
 
@@ -237,10 +237,10 @@ const getShByExtId = async (extId) => {
         if (res.status == 200) {
             return res.data
         } else {
-            console.log(`Shipment with ${extId} not Found`)
+            return null
         }
     } catch (error) {
-        console.log(`Some Error while getting Shipment by Ext ID`, error.message)
+        console.log(`Some Error while getting Shipment by Ext ID` + error.message)
         throw error
     }
 }
@@ -270,7 +270,7 @@ const populateUpdatedFields = async (sh, payload) => {
         }
     });
     if (updatedFields.length) {
-        console.log("Updated Fields:", updatedFields);
+        console.log("Updated Fields:" + JSON.stringify(updatedFields));
     } else {
         console.log("No Fields to Update")
     }
@@ -296,7 +296,7 @@ const updateShipment = async (sh) => {
             console.log(`Shipment with ${extId} not Found`)
         }
     } catch (error) {
-        console.log(`Some Error while updating Shipment by Ext ID`, error.message)
+        console.log(`Some Error while updating Shipment by Ext ID` + error.message)
         throw error
     }
 };
@@ -321,13 +321,14 @@ async function executeAllFunctions() {
             if (isToBeUpdated) {
                 const shNo = await updateShipment(existingShByExtId)
                 if (shNo) {
-                    data = shNo;
+                    data = `Shipment Updated: ${shNo}`;
                     status = 200;
                 } else {
                     throw new Error("Failed to Update shipment.");
                 }
             } else {
-                console.log("Shipment Already Exists with Provided Field Values")
+                console.log(`Shipment Already Exists with Provided Field Values`)
+                error = `Shipment Already Exists with Provided Field Values`
             }
         } else {
             const shipment = getShipmentSkeleton();
@@ -345,6 +346,7 @@ async function executeAllFunctions() {
             }
             const shNo = await setDetails(requestBody, shipment);
             if (shNo) {
+                console.log(`Shipment Created with Shipment Number : ${shNo}`)
                 data = shNo;
                 status = 200;
             } else {
@@ -353,7 +355,7 @@ async function executeAllFunctions() {
         }
         return { data: data, error: error, status: status }
     } catch (error) {
-        console.log("Error executing function:", error.message);
+        console.log("Error executing function:" + error.message);
         return { data: null, error: error.message, status: 400 }
     }
 }
