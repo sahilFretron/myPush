@@ -1,4 +1,4 @@
-const token = `Beaer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIxMDEzNzIsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiI0NjRkNGU2YS00ZDYyLTQyOWYtYTY2MC04NmE0ODgzOWM3YWYiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.cW8LkY9PaTsl4U3ueYd5K8-sjQAJ6S6OwaObHJvKxLU`;
+const token = ``;
 import rp from 'request-promise';
 const FRT_PUB_BASE_URL = "https://apis.fretron.com"
 
