@@ -8,12 +8,12 @@ const shipment = {
         {
             indexedValue: ["MaterialGroup1_ratePerMt"],
             fieldKey: "MaterialGroup1",
-            value: 0.5
+            value: 100
         },
         {
             indexedValue: ["MaterialGroup2_ratePerMt"],
             fieldKey: "MaterialGroup2",
-            value: 1
+            value: 200
         }
     ],
     consignments: [
@@ -95,7 +95,7 @@ const shipment = {
             }
         }
     },
-    minGuaranteeWeight: 18,
+    minGuaranteeWeight: 1800,
     uuid: "fb2b2bb1-af42-48a2-bdaa-4db59870ee5b"
 };
 
@@ -108,26 +108,26 @@ const shipmentCost = [
         },
     },
     {
-        "amount": 12,
+        "amount": 12500,
         "charge": {
-            "amount": 12,
+            "amount": 12500,
             "name": "Freight",
             "rateUnit": "Fixed",
         },
         "uuid": "27ed7ab0-88c3-432d-9278-18fd28b748c8",
         "lineItems": [
             {
-                "amount": 3,
+                "amount": 3500,
                 "charge": {
-                    "amount": 3,
+                    "amount": 3500,
                     "name": "Freight"
                 },
                 "consignmentId": "cn1",
             },
             {
-                "amount": 9,
+                "amount": 9000,
                 "charge": {
-                    "amount": 9,
+                    "amount": 9000,
                     "name": "Freight"
                 },
                 "consignmentId": "cn2",
@@ -195,31 +195,33 @@ function getRatePerMtFields(shipment) {
     return ratePerMtValues;
 }
 
-async function calculateCost(cnWiseMaterialGroupWeight, ratePetMt, minGuaranteeWeight) {
-    let cnWiseMatWiseCost = await calculateCnWiseMatWiseCost(cnWiseMaterialGroupWeight, ratePetMt.length ? ratePetMt : null);
+async function calculateCost(cnWiseMaterialGroupWeight, ratePerMt, minGuaranteeWeight, freightCost) {
+    let cnWiseMatWiseCost = await calculateCnWiseMatWiseCost(cnWiseMaterialGroupWeight, ratePerMt.length ? ratePerMt : null);
     let materialWiseCost = await mergeConsignmentMaterial(cnWiseMatWiseCost)
     const totalWeight = materialWiseCost.reduce((total, group) => total + group.Qty, 0);
-    if (minGuaranteeWeight > totalWeight) {
-        let actualCostRatio = totalWeight / minGuaranteeWeight
-        if (ratePetMt != null) {
-            let totalCost = materialWiseCost.reduce((total, group) => total + group.Qty, 0);
-            let actualMatCost = actualCostRatio * totalCost
+    if (ratePerMt.length != 0) {
+        let totalCost = materialWiseCost.reduce((total, group) => total + group.totalMaterialCost, 0);
+        let totalMatExtraCost = freightCost.amount - totalCost
+        materialWiseCost.forEach(group => {
+            group.actualCost = group.totalMaterialCost
+            group.extraCost = (totalMatExtraCost / totalCost) * group.actualCost
+            group.totalMaterialCost = group.actualCost + group.extraCost
+        });
+    } else {
+        if (minGuaranteeWeight > totalWeight) {
+            let actualCostRatio = totalWeight / minGuaranteeWeight;
+            let actualMatCostPerMt = (actualCostRatio * freightCost.amount) / totalWeight
             materialWiseCost.forEach(group => {
-                group.actualCost = (group.Qty / totalWeight) * actualMatCost;
-                group.extraCost = group.totalMaterialCost - group.actualCost;
-            });
-        } else {
-            let actualMatCost = actualCostRatio * freightCost.amount
-            materialWiseCost.forEach(group => {
-                group.actualCost = (group.Qty / totalWeight) * actualMatCost;
+                group.actualCost = group.Qty * actualMatCostPerMt;
                 group.extraCost = group.totalMaterialCost - group.actualCost;
             });
         }
-    } else {
-        materialWiseCost.forEach(group => {
-            group.extraCost = 0;
-            group.actualCost = group.totalMaterialCost
-        });
+        else {
+            materialWiseCost.forEach(group => {
+                group.extraCost = 0;
+                group.actualCost = group.totalMaterialCost
+            });
+        }
     }
     return materialWiseCost
 }
@@ -301,8 +303,8 @@ async function main(shipment, shipmentCost) {
         }
         let minGuaranteeWeight = shipment?.minGuaranteeWeight ?? 0;
         let cnWiseMaterialGroupWeight = await extractPerCnMaterialGroupWiseQuantity(shipment, freightCost);
-        let ratePetMt = await getRatePerMtFields(shipment);
-        let costPerMaterial = await calculateCost(cnWiseMaterialGroupWeight, ratePetMt, minGuaranteeWeight)
+        let ratePerMt = await getRatePerMtFields(shipment);
+        let costPerMaterial = await calculateCost(cnWiseMaterialGroupWeight, ratePerMt, minGuaranteeWeight, freightCost)
         console.log(costPerMaterial)
 
     } catch (e) {
