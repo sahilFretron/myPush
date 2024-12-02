@@ -361,6 +361,7 @@ async function main(shipment, shipmentCost) {
         }
         
         // Get minimum guarantee weight (default to 0 if not provided)
+        // Assuming this field will be on Top Level of the Shipment
         let minGuaranteeWeight = shipment?.minGuaranteeWeight ?? 0;
         
         // Extract material group quantities per consignment
