@@ -6,12 +6,12 @@ const FRT_PUB_BASE_URL = "https://apis.fretron.com"
 const shipment = {
     customFields: [
         {
-            indexedValue: ["MaterialGroup1_"],
+            indexedValue: ["MaterialGroup1_ratePerMt"],
             fieldKey: "MaterialGroup1",
             value: 100
         },
         {
-            indexedValue: ["MaterialGroup2_"],
+            indexedValue: ["MaterialGroup2_ratePerMt"],
             fieldKey: "MaterialGroup2",
             value: 200
         }
