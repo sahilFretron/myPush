@@ -1,4 +1,4 @@
-import snapCoordinatesWithFallback from './originialSnap.js'
+import snapCoordinatesWithFallback from './Snap Coordinates by Rohit.js'
 import fs from 'fs'
 import path from 'path';
 import { fileURLToPath } from 'url';
