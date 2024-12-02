@@ -1,6 +1,6 @@
 /* 
 Assumption:
-1. There will be a field "minGuaranteeWeight"
+1. There will be a field "minGuaranteeWeight" on the Top Level of Shipment
 2. There will be custom Fields on Shipment with Suffix "ratePerMt" for Material Rate / MT
 */
 
