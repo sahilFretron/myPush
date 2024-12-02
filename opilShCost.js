@@ -1,3 +1,10 @@
+/* 
+Assumption:
+1. There will be a field "minGuaranteeWeight"
+2. There will be custom Fields on Shipment with Suffix "ratePerMt" for Material Rate / MT
+*/
+
+
 const rp = require('request-promise')
 const FREIGHT_CHARGE_NAME = "Freight";
 const RATE_PER_MT_SUFFIX = "ratePerMt";
