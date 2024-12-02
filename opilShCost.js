@@ -368,6 +368,7 @@ async function main(shipment, shipmentCost) {
         let cnWiseMaterialGroupWeight = await extractPerCnMaterialGroupWiseQuantity(shipment, freightCost);
         
         // Get rates per metric ton from custom fields
+        //Assuming there will be CustomFields with Suffix (ratePerMt)
         let ratePerMt = await getRatePerMtFields(shipment);
         
         // Calculate final cost per material group
