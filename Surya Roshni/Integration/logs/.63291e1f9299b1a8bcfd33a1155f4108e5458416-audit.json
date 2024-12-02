@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 7
+    },
+    "auditLog": "integration_surya_roshni/logs/.63291e1f9299b1a8bcfd33a1155f4108e5458416-audit.json",
+    "files": [
+        {
+            "date": 1732685765717,
+            "name": "integration_surya_roshni/logs/integration-surya-roshni-reports-27-11-2024.log",
+            "hash": "bd7bf16839eca9613f99030f4171fbc9a0bd1477b2dd7fa7ec67ef505f462ff6"
+        }
+    ],
+    "hashType": "sha256"
+}
