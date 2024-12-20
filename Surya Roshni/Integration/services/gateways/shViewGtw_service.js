@@ -25,6 +25,43 @@ async function getLatLong(pincode, token) {
   }
 }
 
+async function shipmentsFromFilter(filter, token, searchName = null,_source = null,isCount = false) {
+  var url = `${shViewBaseUrl}/shipments/v1?filters=${encodeURIComponent(
+    JSON.stringify(filter)
+  )}`;
+
+  if (searchName) {
+    url += `&search=${searchName}`;
+  }
+
+  if (_source) {
+    url += `&allFields=true`;
+  }
+
+  if (isCount) {
+    url += `&count=true`;
+  }
+
+  try {
+    var options = {
+      url: url,
+      json: true,
+      method: "get",
+      headers: {
+        Authorization: token,
+      },
+    };
+
+    const res = await rp(options);
+
+    return res;
+  } catch (error) {
+    logger.error(`Catched error in shipmentsFromFilter ${error.message}`);
+    return null;
+  }
+}
+
 module.exports = {
-  getLatLong: getLatLong
+  getLatLong: getLatLong,
+  shipmentsFromFilter: shipmentsFromFilter
 }

@@ -2,18 +2,24 @@ function customerSyncValidation(payload) {
     const isEmpty = (value) => value === null || value === undefined || value === '';
 
     const requiredFields = [
-        { key: 'destinationCity', message: "destinationCity can't be null or empty" },
-        { key: 'destinationState', message: "destinationState can't be null or empty" },
-        { key: 'pincode', message: "pincode can't be null or empty" },
-        { key: 'group', message: "group can't be null or empty" },
-        { key: 'customerId', message: "customerId can't be null or empty" },
-        { key: 'customerName', message: "customerName can't be null or empty" },
+        'destinationCity',
+        'destinationState',
+        'pincode',
+        'group',
+        'customerId',
+        'customerName'
     ];
 
-    for (const field of requiredFields) {
-        if (isEmpty(payload[field.key])) {
-            throw new Error(field.message);
+    const errors = [];
+
+    for (const key of requiredFields) {
+        if (isEmpty(payload[key])) {
+            errors.push(`${key}`);
         }
+    }
+
+    if (errors.length > 0) {
+        throw new Error(`${errors.join('; ')}  can't be null or empty`);
     }
 }
 
@@ -21,20 +27,53 @@ function transporterSyncValidation(payload) {
     const isEmpty = (value) => value === null || value === undefined || value === '';
 
     const requiredFields = [
-        { key: 'transporterId', message: "transporterId can't be null or empty" },
-        { key: 'transporterName', message: "transporterName can't be null or empty" },
+        'transporterId',
+        'transporterName'
     ];
 
-    for (const field of requiredFields) {
-        if (isEmpty(payload[field.key])) {
-            throw new Error(field.message);
+    const errors = [];
+
+    for (const key of requiredFields) {
+        if (isEmpty(payload[key])) {
+            errors.push(`${key}`);
         }
+    }
+
+    if (errors.length > 0) {
+        throw new Error(`${errors.join('; ')}  can't be null or empty`);
+    }
+}
+
+function invoiceCreationPayloadValidation(payload) {
+    const isEmpty = (value) => value === null || value === undefined || value === '';
+
+    const requiredFields = [
+        'Vehicle No',
+        'Invoice No.',
+        'Material Code',
+        'Package Qty',
+        'Volume',
+        'Weight',
+        'Lr. No.',
+        'Order Number'
+    ];
+
+    const errors = [];
+
+    for (const key of requiredFields) {
+        if (isEmpty(payload[key])) {
+            errors.push(`${key}`);
+        }
+    }
+
+    if (errors.length > 0) {
+        throw new Error(`${errors.join('; ')} missing`);
     }
 }
 
 
-
 module.exports = {
     customerSyncValidation: customerSyncValidation,
-    transporterSyncValidation: transporterSyncValidation
+    transporterSyncValidation: transporterSyncValidation,
+    invoiceCreationPayloadValidation: invoiceCreationPayloadValidation
 }
