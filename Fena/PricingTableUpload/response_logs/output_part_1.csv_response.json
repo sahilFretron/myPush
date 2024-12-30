@@ -1,0 +1,40 @@
+{
+  "data": {
+    "failureList": {
+      "Failed Count": 0,
+      "List": []
+    },
+    "successList": {
+      "Success Count ": 30
+    },
+    "successWithDuplicateEntries": {
+      "List": [
+        {
+          "originHub": "DHANBAD",
+          "FU Creation Date_min_inclusive": "01-01-2025",
+          "Consignor Ext Id": "DDHA",
+          "FU Creation Date_max_exclusive": "31-12-2025",
+          "Approved Freight_1": "8300",
+          "Approved Freight_2": "11700",
+          "Distance(KM)": "235",
+          "_cf_fixed_ApprovedWeight": "03MT",
+          "destinationHub": "CHANDWA-LATEHAR"
+        },
+        {
+          "originHub": "DHANBAD",
+          "FU Creation Date_min_inclusive": "01-01-2025",
+          "Consignor Ext Id": "DDHA",
+          "FU Creation Date_max_exclusive": "31-12-2025",
+          "Approved Freight_1": "11700",
+          "Approved Freight_2": "18697",
+          "Distance(KM)": "235",
+          "_cf_fixed_ApprovedWeight": "05MT",
+          "destinationHub": "CHANDWA-LATEHAR"
+        }
+      ],
+      "DuplicateEntries": 2
+    }
+  },
+  "error": null,
+  "status": 200
+}

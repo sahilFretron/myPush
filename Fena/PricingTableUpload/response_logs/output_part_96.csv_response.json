@@ -1,0 +1,17 @@
+{
+  "data": {
+    "failureList": {
+      "Failed Count": 0,
+      "List": []
+    },
+    "successList": {
+      "Success Count ": 30
+    },
+    "successWithDuplicateEntries": {
+      "List": [],
+      "DuplicateEntries": 0
+    }
+  },
+  "error": null,
+  "status": 200
+}
