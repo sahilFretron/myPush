@@ -14,7 +14,7 @@ async function uploadFile(filePath) {
         contentType: 'text/csv'
     });
     const url = `${BASR_URL}/freight-pricing/v1/bulk/upload/conditions/csv-file?priceTableId=${priceTableId}`;
-    const TOKEN = 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzU1NDM1NTQsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiIzZTRjZGVlOS0wYjNiLTQ2ZGQtOWI5OC1kZjBlMzhhMDI3MWMiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.RYpKc6GIjg-6MHUJSG-WYbs8KRhcwtbnBOOBXo_YAuY';
+    const TOKEN = '';
 
     try {
         // Send the POST request with form-data
