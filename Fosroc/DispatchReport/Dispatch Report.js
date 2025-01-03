@@ -1,9 +1,37 @@
-const { getDataFromElasticV2, getDispatchByUuids } = require("../services/gateways/shipmentViewGTW.service")
+const { getDataFromElasticV2 } = require("../services/gateways/shipmentViewGTW.service")
 const moment = require('moment');
 const XLSX = require('xlsx');
 const fs = require("fs")
 const rp = require("request-promise")
 const BATCH_SIZE = 50;
+
+const freightUnitsIndex = "freightunits_v1"
+const orderIndex = "salesorderseventtopic"
+const bPartnerIndex = "bpartners"
+
+function getQuery(source, query, size) {
+    return {
+        "_source": source,
+        "size": size,
+        "query": {
+            "bool": {
+                "must": query,
+                "must_not": [
+                    {
+                        "terms": {
+                            "status.keyword": ["Deleted"]
+                        }
+                    },
+                    {
+                        "terms": {
+                            "type.keyword": ["Deleted"]
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
 
 const convertDDMMYYYYToEpoch = (dateString) => {
     if (!dateString) return null;
@@ -13,9 +41,60 @@ const convertDDMMYYYYToEpoch = (dateString) => {
     return date.isValid() ? date.valueOf() : null;
 };
 
+function getReadableTimeDiff(epoch1, epoch2) {
+    if (!epoch1 || !epoch2 || isNaN(epoch1) || isNaN(epoch2)) {
+        return null;
+    }
+    // Convert milliseconds to minutes
+    const diffInMinutes = Math.abs(Math.floor((epoch2 - epoch1) / (1000 * 60)));
+
+    // Calculate hours and remaining minutes
+    const hours = Math.floor(diffInMinutes / 60);
+    const minutes = diffInMinutes % 60;
+
+    // Build readable string
+    let result = '';
+
+    if (hours > 0) {
+        result += `${hours} hour${hours !== 1 ? 's' : ''}`;
+        if (minutes > 0) {
+            result += ' ';
+        }
+    }
+
+    if (minutes > 0 || hours === 0) {
+        result += `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+
+    return result;
+}
+
+function getDispatchStatus(status) {
+    if (status === "PENDING") {
+        return "Unallocated"
+    }
+    else if (status === "INDENT") {
+        return "Acceptance Pending"
+    }
+    else if (status === "AUCTIONED") {
+        return "Under Bidding"
+    }
+    else if (status === "ALLOCATED") {
+        return "Vehicle Assignment Pending"
+    }
+    else if (status === "PLACED") {
+        return "Finalization Pending"
+    }
+    else if (status === "FINALIZED" || status === "FINALIZATION_IN_PROGRESS" || status === "DELIVERED") {
+        return "Completed"
+    }
+    else {
+        return status
+    }
+}
 
 function generateExcel(excelData) {
-    if (!excelData || excelData.length === 0) {
+    if (excelData.length === 0) {
         return null
     }
     const workbook = XLSX.utils.book_new();
@@ -42,41 +121,40 @@ function generateExcel(excelData) {
     return filename;
 }
 
-function generateRowsForFreightUnits(freight, orderNumbers) {
+const formatDateTime = (epoch) => 
+    epoch ? moment(epoch).format('DD-MM-YYYY HH:mm:ss') : null;
+
+function generateRowsForFreightUnits(freight, orderNumbers, consignerNames, consigneeNames, consigneePlaces, consignerPlaces) {
     const findCustomFieldValue = (fields, key) =>
         fields?.find(field => field.fieldKey === key)?.value || null;
+    const vendorName = findCustomFieldValue(freight?.customFields, "Vendor Name");
     const indentTime = convertDDMMYYYYToEpoch(findCustomFieldValue(freight?.customFields, "Indent Date Time"));
     const indentAcceptanceTime = convertDDMMYYYYToEpoch(findCustomFieldValue(freight?.customFields, "Indent Acceptance Date Time"))
     const timeTakenForAcceptance = indentAcceptanceTime && indentTime
-        ? getReadableTimeDiff(indentTime,indentAcceptanceTime)
+        ? getReadableTimeDiff(indentTime, indentAcceptanceTime)
         : null;
     const vehicleAssDate = convertDDMMYYYYToEpoch(findCustomFieldValue(freight?.customFields, "Vehicle Assignment Date Time"));
     const vehicleNumber = findCustomFieldValue(freight?.customFields, "Vehicle Number");
     const timeTakenForVehPlacement = vehicleAssDate && indentAcceptanceTime
-        ? getReadableTimeDiff(indentAcceptanceTime,vehicleAssDate)
+        ? getReadableTimeDiff(indentAcceptanceTime, vehicleAssDate)
         : null;
     return {
         'Dispatch No': freight?.documentNumber,
         'Order Numbers': orderNumbers ? orderNumbers.join(", ") : null,
-        'Requested Vehicle (Truck Capacity)': freight?.allowedLoadTypes?.[0]?.passingCapacityMT,
-        'Dispatch Wt': freight?.totalQuantity?.weight?.netQuantity,
-        'Origin': freight?.details?.origins.join(", "),
-        'Destination': freight?.details?.destinations.join(", "),
-        'Consignor Name': freight?.details?.consignors.join(", "),
-        'Consignee Name': freight?.details?.consignee.join(", "),
-        'Indent Date Time': indentTime
-            ? moment(indentTime).format('DD-MM-YYYY HH:mm:ss')
-            : null,
-        'Indent Acceptance Date Time': indentAcceptanceTime
-            ? moment(indentAcceptanceTime).format('DD-MM-YYYY HH:mm:ss')
-            : null,
+        'Vendor Name': vendorName || '',
+        'Requested Vehicle (Truck Capacity MT)': freight?.allowedLoadTypes?.[0]?.passingCapacityMT,
+        'Dispatch Wt (MT)': freight?.totalQuantity?.weight?.netQuantity,
+        'Origin': consignerPlaces,
+        'Destination': consigneePlaces,
+        'Consignor Name': consignerNames,
+        'Consignee Name': consigneeNames,
+        'Indent Date Time': formatDateTime(indentTime),
+        'Indent Acceptance Date Time': formatDateTime(indentAcceptanceTime),
         'Time Taken For Acceptance': timeTakenForAcceptance,
-        'Vehicle Assignment Date': vehicleAssDate
-            ? moment(vehicleAssDate).format('DD-MM-YYYY HH:mm:ss')
-            : null,
+        'Vehicle Assignment Date': formatDateTime(vehicleAssDate),
         'Vehicle Number': vehicleNumber || '',
         'Time Taken For Vehicle Placement': timeTakenForVehPlacement,
-        'Dispatch Status': freight?.lineItems?.[0]?.status || '',
+        'Dispatch Status': getDispatchStatus(freight?.lineItems?.[0]?.status) || '',
     };
 }
 
@@ -120,70 +198,123 @@ async function sendEmailWithAttachment(
     }
 }
 
-async function processFreightBatchAndGenerateRows(uuids, token) {
-    const encodedUuids = encodeURIComponent(JSON.stringify({ "uuid": uuids }));
-    const freights = await getDispatchByUuids(encodedUuids, token);
-    if (!freights) {
-        throw new Error("Error Fetching Freight")
+async function fetchElasticData(index, source, must, size) {
+    const query = getQuery(source, must, size);
+    const data = await getDataFromElasticV2(index, query);
+    if (!data || !Array.isArray(data)) {
+        throw new Error(`Invalid data received from ${index}`);
     }
-    return freights.map(freight => {
-
-        const orderCfs = freight.customFields
-            ?.filter(field => field.fieldKey === "Order Numbers")
-            .map(field => field.value)
-            .flat() || [];
-
-        const orderNumbers = orderCfs
-            .join(',')
-            .split(',')
-            .map(order => order.trim());
-
-        return generateRowsForFreightUnits(freight, orderNumbers);
-    });
+    return data;
 }
 
-async function sendDispatchReport(toEmail, ccEmail, fromDate, tillDate, orgId, token) {
+function extractOrderData(orders) {
+    return {
+        consignerNames: [...new Set(orders.map(order => 
+            order._source?.lineItems?.[0]?.consigner?.name).filter(Boolean))],
+        consigneeNames: [...new Set(orders.map(order => 
+            order._source?.lineItems?.[0]?.consignee?.name).filter(Boolean))],
+        consigneePlaces: [...new Set(orders.map(order => 
+            order._source?.lineItems?.[0]?.consignee?.places?.[0]?.name).filter(Boolean))],
+        consignerPlaces: [...new Set(orders.map(order => 
+            order._source?.lineItems?.[0]?.consigner?.places?.[0]?.name).filter(Boolean))]
+    };
+}
+
+function extractOrderNumbers(customFields) {
+    const orderCfs = customFields
+        ?.filter(field => field.fieldKey === "Order Numbers")
+        .map(field => field.value)
+        .flat() || [];
+
+    return orderCfs
+        .join(',')
+        .split(',')
+        .map(order => order.trim())
+        .filter(order => order);
+}
+
+async function processFreightBatchAndGenerateRows(orgId, uuids, consignorFilter) {
     try {
-        let index = "freightunits_v1"
-        let query = {
-            "_source": ["uuid"],
-            "size": 5000,
-            "query": {
-                "bool": {
-                    "must": [
-                        {
-                            "term": {
-                                "orgId.keyword": {
-                                    "value": orgId
-                                }
-                            }
-                        },
-                        {
-                            "range": {
-                                "documentDate": {
-                                    "gte": Number(fromDate),
-                                    "lte": Number(tillDate)
-                                }
-                            }
-                        }
-                    ],
-                    "must_not": [
-                        {
-                            "term": {
-                                "type.keyword": {
-                                    "value": "Deleted"
-                                }
-                            }
-                        }
-                    ]
+        const freights = await fetchElasticData(
+            freightUnitsIndex, 
+            ["uuid", "customFields", "documentNumber", "lineItems", "allowedLoadTypes", "totalQuantity"],
+            { "terms": { "uuid.keyword": uuids } },
+            50
+        );
+
+        const orderNumbers = [...new Set(freights.flatMap(freight => 
+            extractOrderNumbers(freight._source.customFields)))];
+
+        const orders = await fetchElasticData(
+            orderIndex,
+            ["orderNumber", "lineItems.consigner.name", "lineItems.consignee.name", "lineItems.consignee.places", "lineItems.consigner.places"],
+            [
+                { "term": { "orgId.keyword": { "value": orgId } } },
+                { "terms": { "orderNumber.keyword": orderNumbers } }
+            ],
+            orderNumbers.length
+        );
+
+        return Promise.all(freights.map(async freightUnit => {
+            const freight = freightUnit._source;
+            const orderNumbers = extractOrderNumbers(freight.customFields);
+
+            if (consignorFilter) {
+                const matchingOrders = orders.filter(order =>
+                    orderNumbers.includes(order._source.orderNumber) &&
+                    (consignorFilter === 'NOFILTER' || order._source.lineItems?.[0]?.consigner?.name === consignorFilter)
+                );
+
+                if (matchingOrders.length === 0) return null;
+
+                const { consignerNames, consigneeNames, consigneePlaces, consignerPlaces } = 
+                    extractOrderData(matchingOrders);
+
+                return generateRowsForFreightUnits(
+                    freight,
+                    orderNumbers,
+                    consignerNames.join(", "),
+                    consigneeNames.join(", "),
+                    consigneePlaces.join(", "),
+                    consignerPlaces.join(", ")
+                );
+            }
+            return null;
+        })).then(results => results.filter(Boolean));
+    } catch (error) {
+        console.error("Error in processFreightBatchAndGenerateRows:", error);
+        throw new Error(`Failed to process freight batch: ${error.message}`);
+    }
+}
+
+async function sendDispatchReport(toEmail, ccEmail, fromDate, tillDate, orgId, token, consignorFilter) {
+    if (!toEmail || !fromDate || !tillDate || !orgId) {
+        throw new Error("Missing required parameters");
+    }
+
+    try {
+        let query = [
+            {
+                "term": {
+                    "orgId.keyword": {
+                        "value": orgId
+                    }
+                }
+            }, {
+                "range": {
+                    "documentDate": {
+                        "gte": Number(fromDate),
+                        "lte": Number(tillDate)
+                    }
                 }
             }
-        };
+        ]
+        let dataFromElastic = await fetchElasticData(freightUnitsIndex, ["uuid"], query, 5000)
 
-        let dataFromElastic = await getDataFromElasticV2(index, query)
-        if (!dataFromElastic) {
-            throw new Error("Error Getting Data from Elastic")
+        if (dataFromElastic.length === 0) {
+            return "NO_DATA_FOUND";
         }
+
         let fuIds = []
         for (const hit of dataFromElastic) {
             fuIds.push(hit._source.uuid);
@@ -191,43 +322,34 @@ async function sendDispatchReport(toEmail, ccEmail, fromDate, tillDate, orgId, t
         let excelData = []
         for (let i = 0; i < fuIds.length; i += BATCH_SIZE) {
             const batchIds = fuIds.slice(i, i + BATCH_SIZE);
-            const batchResults = await processFreightBatchAndGenerateRows(batchIds, token);
-            excelData.push(...batchResults);
+            const batchResults = await processFreightBatchAndGenerateRows(orgId, batchIds, consignorFilter);
+            if (batchResults.length > 0) {
+                excelData.push(...batchResults);
+            }
         }
 
         let filePath = generateExcel(excelData);
+        if (!filePath) {
+            return `EMPTY DATA`;
+        }
         return await sendEmailWithAttachment(toEmail, ccEmail, "Dispatch Report - Fosroc", null, filePath)
 
-    } catch (e) {
-        console.log(e)
-        throw e
+    } catch (error) {
+        console.error("Error in sendDispatchReport:", error);
+        throw new Error(`Failed to generate dispatch report: ${error.message}`);
+    } finally {
+        // Cleanup any temporary files if they exist
+        try {
+            const tempFile = `FreightUnits_Export.xlsx`;
+            if (fs.existsSync(tempFile)) {
+                fs.unlinkSync(tempFile);
+            }
+        } catch (error) {
+            console.error("Error cleaning up temporary file:", error);
+        }
     }
 }
 
-function getReadableTimeDiff(epoch1, epoch2) {
-    // Convert milliseconds to minutes
-    const diffInMinutes = Math.abs(Math.floor((epoch2 - epoch1) / (1000 * 60)));
-    
-    // Calculate hours and remaining minutes
-    const hours = Math.floor(diffInMinutes / 60);
-    const minutes = diffInMinutes % 60;
-    
-    // Build readable string
-    let result = '';
-    
-    if (hours > 0) {
-        result += `${hours} hour${hours !== 1 ? 's' : ''}`;
-        if (minutes > 0) {
-            result += ' ';
-        }
-    }
-    
-    if (minutes > 0 || hours === 0) {
-        result += `${minutes} minute${minutes !== 1 ? 's' : ''}`;
-    }
-    
-    return result;
-}
 module.exports = {
     sendDispatchReport: sendDispatchReport
 }

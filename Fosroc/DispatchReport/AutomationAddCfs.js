@@ -99,7 +99,7 @@ async function main(freight) {
                     break;
 
                 case forwardReason.includes("freight.unit.allocate.transporter.event"):
-                    console.log("Indent Date Time");
+                    console.log("Vendor Name");
                     let transporterId = freight.lineItems[0].transporterId;
                     let transporterName = await bPartner(transporterId);
                     let transporterNameCf = getCfObj("Vendor Name", transporterName);
