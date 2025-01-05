@@ -189,16 +189,16 @@ async function createExcelReport(shipmentsToAlert) {
                 : '';
 
             return {
-                'Vehicle Number': sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber,
-                'Shipment No': sh?.shipmentNumber,
-                'Trip Status': sh?.shipmentTrackingStatus,
+                'Vehicle Number': sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber || '',
+                'Shipment No': sh?.shipmentNumber || '',
+                'Trip Status': sh?.shipmentTrackingStatus || '',
                 'Material': sh?.consignments?.flatMap(c => c?.lineItems?.map(item => item?.material?.name))?.filter(Boolean)?.join(" ") || '',
-                'Transporter Name': sh?.fleetInfo?.fleetOwner?.name,
-                'Driver No.': sh?.fleetInfo?.driver?.mobileNumber,
-                'Origin': sh?.shipmentStages?.[0]?.place?.name || sh?.shipmentStages?.[0]?.hub?.name,
-                'Destination': sh?.shipmentStages?.slice(1)?.map(stage => stage?.place?.name || stage?.hub?.name)?.filter(Boolean)?.join(', '),
-                'Live Location Link': liveLocationLink,
-                'Standy By Since': ((Date.now() - sh?.shipmentStages?.[0]?.arrivalTime) / (1000 * 60 * 60))?.toFixed(2) + ' hours',
+                'Transporter Name': sh?.fleetInfo?.fleetOwner?.name || '',
+                'Driver No.': sh?.fleetInfo?.driver?.mobileNumber || '',
+                'Origin': sh?.shipmentStages?.[0]?.place?.name || sh?.shipmentStages?.[0]?.hub?.name || '',
+                'Destination': sh?.shipmentStages?.slice(1)?.map(stage => stage?.place?.name || stage?.hub?.name)?.filter(Boolean)?.join(', ') || '',
+                'Live Location Link': liveLocationLink || '',
+                'Standy By Since': ((Date.now() - sh?.shipmentStages?.[0]?.arrivalTime) / (1000 * 60 * 60))?.toFixed(2) + ' hours' || '',
                 'Loaded/Unloaded Status': sh?.customFields?.find(field => field?.fieldKey === 'Trip Load')?.value || ''
             };
         }));
@@ -245,4 +245,5 @@ async function main() {
     }
     await createExcelReport(shipmentsToAlert);
 }
+
 main();
