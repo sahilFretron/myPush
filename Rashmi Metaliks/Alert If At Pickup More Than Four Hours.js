@@ -4,8 +4,7 @@ const TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIwMjA5NzQsInVzZXJJZCI6I
 const alertTypePickup = "shipment.standby.limit.reached.pickup";
 const alertTypeDelivery = "shipment.standby.limit.reached.delivery";
 const index = "shipments_v2";
-const XLSX = require('xlsx');
-const fs = require('fs');
+const ORGID = "208afdad-deab-4c76-8d49-30a70f420f35";
 
 function getAlertSkeleton(type) {
     return {
@@ -149,37 +148,35 @@ async function generateAlert(alert, sh) {
     }
 }
 
-async function sendEmailWithAttachment(filePath) {
+async function sendEmail(jsonArr) {
+    let url = `${FRT_PUB_BASE_URL}/shipment-view/shipments/json/email`;
+    let payload = {
+        data: jsonArr,
+        emailInfo: {
+            to: "sahil.aggarwal@fretron.com",
+            cc: "sahil.aggarwal@fretron.com",
+            subject: "Standy By Limit Reached: Excel Report",
+            content: "Please find the attached excel report",
+        },
+        orgId: ORGID,
+    };
     try {
-        let url = `${FRT_PUB_BASE_URL}/notifications/ses/email`;
-        let reqObj = {
-            to: ['sahil.aggarwal@fretron.com'],
-            subject: "Delayed Shipments Report",
-            content: "Please find attached the report for delayed shipments.",
-            file: fs.createReadStream(filePath)
-        };
-
-        var options = {
+        let res = await rp({
             method: "POST",
             uri: url,
-            headers: {
-                "Content-Type": "application/json",
-            },
-            formData: reqObj,
+            body: payload,
             json: true,
-        };
-        let res = await rp(options);
-        if (res == "SMTP: Email sent to successfully.") {
-            fs.unlinkSync(filePath);
-            console.log("Email sent successfully and file deleted");
-            return res;
+        });
+        console.log(`Sending Json to Excel email api res status : ${res.status}`);
+        if (res.status === 200) {
+            return "Email sent successfully"
         } else {
-            throw new Error(res.error);
+            console.log(`Sending Json to Excel email api res error : ${res.error}`);
         }
-    } catch (error) {
-        console.log("Error sending mail- " + error.message);
-        return null;
+    } catch (e) {
+        console.log(`Catched Error in sending json to excel email : ${e.message}`);
     }
+    return "Some error in sending email"
 }
 
 async function createExcelReport(shipmentsToAlert) {
@@ -195,7 +192,7 @@ async function createExcelReport(shipmentsToAlert) {
                 'Vehicle Number': sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber,
                 'Shipment No': sh?.shipmentNumber,
                 'Trip Status': sh?.shipmentTrackingStatus,
-                'Material': sh?.consignments?.flatMap(c => c?.lineItems?.map(item => item?.material?.name))?.filter(Boolean)?.join(" "),
+                'Material': sh?.consignments?.flatMap(c => c?.lineItems?.map(item => item?.material?.name))?.filter(Boolean)?.join(" ") || '',
                 'Transporter Name': sh?.fleetInfo?.fleetOwner?.name,
                 'Driver No.': sh?.fleetInfo?.driver?.mobileNumber,
                 'Origin': sh?.shipmentStages?.[0]?.place?.name || sh?.shipmentStages?.[0]?.hub?.name,
@@ -207,15 +204,7 @@ async function createExcelReport(shipmentsToAlert) {
         }));
         console.log(`total shipments to generate excel report: ${data?.length}`);
         if (data?.length > 0) {
-            const workbook = XLSX.utils.book_new();
-            const worksheet = XLSX.utils.json_to_sheet(data);
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Delayed Shipments');
-    
-            const fileName = `Delayed_Shipments_${Date.now()}.xlsx`;
-            XLSX.writeFile(workbook, fileName);
-            console.log(`Excel report generated: ${fileName}`);
-    
-            await sendEmailWithAttachment(fileName);
+            await sendEmail(data);
         }
 
 
@@ -234,20 +223,19 @@ async function main() {
 
     const fourHoursInMs = 4 * 60 * 60 * 1000;
     const currentTime = Date.now();
-    const delayedShipments = shipments?.filter(shipment => {
+    const shipmentsToAlert = shipments?.filter(shipment => {
         const arrivalTime = shipment?.shipmentStages?.[0]?.arrivalTime;
         if (!arrivalTime) return false;
 
         const timeDifference = currentTime - arrivalTime;
-        return timeDifference > fourHoursInMs;
-    });
-    console.log(`total delayed shipments: ${delayedShipments?.length}`);
-    const shipmentsToAlert = delayedShipments?.filter(shipment => {
+        if (timeDifference <= fourHoursInMs) return false;
+
         const alerts = shipment?.alerts || [];
         const status = shipment?.shipmentTrackingStatus;
         const alertType = status === "At Pickup Point" ? alertTypePickup : alertTypeDelivery;
         return !alerts?.some(alert => alert?.type === alertType);
     });
+
     console.log(`total shipments to alert: ${shipmentsToAlert?.length}`);
     for (let sh of shipmentsToAlert) {
         const status = sh?.shipmentTrackingStatus;
@@ -256,6 +244,5 @@ async function main() {
         await generateAlert(alert, sh);
     }
     await createExcelReport(shipmentsToAlert);
-
 }
 main();
