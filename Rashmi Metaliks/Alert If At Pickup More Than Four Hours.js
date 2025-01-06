@@ -33,7 +33,9 @@ const query = {
         "fleetInfo.vehicle.vehicleRegistrationNumber",
         "fleetInfo.fleetOwner.name",
         "fleetInfo.driver.mobileNumber",
-        "consignments.lineItems.material.name"
+        "consignments.lineItems.material.name",
+        "consignments.consignee.name",
+        "currentLocation.address"
     ],
     "size": 200,
     "query": {
@@ -96,7 +98,6 @@ async function getLiveLocation(shipmentId) {
         }
         let res = await rp(options)
         if (res?.status === 200) {
-            console.log(`Successfully shared shipment details for shipmentId: ${shipmentId}`)
             return res
         }
     } catch (err) {
@@ -183,22 +184,30 @@ async function createExcelReport(shipmentsToAlert) {
     try {
         const data = await Promise.all(shipmentsToAlert?.map(async sh => {
             let liveLocData = await getLiveLocation(sh?.uuid);
-
-            const liveLocationLink = liveLocData?.status === 200 && liveLocData?.data
-                ? `https://alpha.fretron.com/shared-shipment/v4?code=${liveLocData.data}`
-                : '';
+            let liveLocationLink = '';
+            if(liveLocData){
+                liveLocationLink = `https://alpha.fretron.com/shared-shipment/v4?code=${liveLocData?.data}`;
+            }
+            let currLocation = sh?.currentLocation?.address || '';
+            if (sh?.shipmentTrackingStatus === "At Pickup Point") {
+                currLocation += ` (${sh?.shipmentStages?.[0]?.place?.name || sh?.shipmentStages?.[0]?.hub?.name || ''})`;
+            } else {
+                currLocation += ` (${sh?.shipmentStages?.[1]?.place?.name || sh?.shipmentStages?.[1]?.hub?.name || ''})`;
+            }
 
             return {
                 'Vehicle Number': sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber || '',
                 'Shipment No': sh?.shipmentNumber || '',
                 'Trip Status': sh?.shipmentTrackingStatus || '',
-                'Material': sh?.consignments?.flatMap(c => c?.lineItems?.map(item => item?.material?.name))?.filter(Boolean)?.join(" ") || '',
+                'Material': [...new Set(sh?.consignments?.flatMap(c => c?.lineItems?.map(item => item?.material?.name))?.filter(Boolean))].join(" ") || '',
                 'Transporter Name': sh?.fleetInfo?.fleetOwner?.name || '',
                 'Driver No.': sh?.fleetInfo?.driver?.mobileNumber || '',
                 'Origin': sh?.shipmentStages?.[0]?.place?.name || sh?.shipmentStages?.[0]?.hub?.name || '',
-                'Destination': sh?.shipmentStages?.slice(1)?.map(stage => stage?.place?.name || stage?.hub?.name)?.filter(Boolean)?.join(', ') || '',
-                'Live Location Link': liveLocationLink || '',
-                'Standy By Since': ((Date.now() - sh?.shipmentStages?.[0]?.arrivalTime) / (1000 * 60 * 60))?.toFixed(2) + ' hours' || '',
+                'Destination': sh?.shipmentStages?.[1]?.place?.name || sh?.shipmentStages?.[1]?.hub?.name || '',
+                'Customer Name': [...new Set(sh?.consignments?.flatMap(c => c?.consignee?.name)?.filter(Boolean))].join(', ') || '',
+                'Live Location Link': liveLocationLink,
+                'Current Location': currLocation,
+                'Standy By Since': ((Date.now() - sh?.shipmentStages?.[sh?.shipmentTrackingStatus === "At Pickup Point" ? 0 : 1]?.arrivalTime) / (1000 * 60 * 60))?.toFixed(2) + ' hours' || '',
                 'Loaded/Unloaded Status': sh?.customFields?.find(field => field?.fieldKey === 'Trip Load')?.value || ''
             };
         }));
