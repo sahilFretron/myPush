@@ -2,11 +2,11 @@ const TOKEN = ""
 const freight = $event
 const currentTimeInEpoch = Date.now();
 
-async function addCfToDispatch(cf, uuid) {
+async function updateCfToDispatch(cf, uuid) {
     try {
         let options = {
-            uri: `${FRT_PUB_BASE_URL}/order-manager-v2/freight-units/v1/custom-field/?uuid=${uuid}`,
-            method: "POST",
+            uri: `${FRT_PUB_BASE_URL}/order-manager-v2/freight-units/v1/custom-fields/?uuid=${uuid}`,
+            method: "PUT",
             headers: {
                 "Authorization": TOKEN
             },
@@ -76,53 +76,51 @@ async function main(freight) {
     try {
         console.log(`Adding CF for: ${freight.documentNumber}:`);
 
-        const forwardReasons = freight.updates.forwardReasons; // Forward reasons array
-
+        const forwardReasons = freight.updates.forwardReasons;
+        let cfsToUpdate = [];
         for (const forwardReason of forwardReasons) {
             switch (true) {
                 case forwardReason.includes("freight.unit.indent.to.transporter.event"):
                     console.log("Indent Date Time");
-                    let cfIndentDate = getCfObj("Indent Date Time", currentTimeInEpoch, "date");
-                    await addCfToDispatch(cfIndentDate, freight.uuid);
-                    break;
-
-                case forwardReason.includes("freight.unit.indent.accepted.event"):
-                    console.log("Indent Acceptance Date Time");
-                    let cfAcceptedDate = getCfObj("Indent Acceptance Date Time", currentTimeInEpoch, "date");
-                    await addCfToDispatch(cfAcceptedDate, freight.uuid);
-                    break;
-
-                case forwardReason.includes("freight.unit.indent.rejected.event"):
-                    console.log("Indent Rejection Date Time");
-                    let cfRejectedDate = getCfObj("Indent Rejection Date Time", currentTimeInEpoch, "date");
-                    await addCfToDispatch(cfRejectedDate, freight.uuid);
-                    break;
-
-                case forwardReason.includes("freight.unit.allocate.transporter.event"):
+                    let cfIndentDate = getCfObj("Indent Date Time", currentTimeInEpoch, "dateTime");
+                    cfsToUpdate.push(cfIndentDate);
                     console.log("Vendor Name");
                     let transporterId = freight.lineItems[0].transporterId;
                     let transporterName = await bPartner(transporterId);
                     let transporterNameCf = getCfObj("Vendor Name", transporterName);
-                    await addCfToDispatch(transporterNameCf, freight.uuid);
+                    cfsToUpdate.push(transporterNameCf);
+                    break;
+
+                case forwardReason.includes("freight.unit.indent.accepted.event"):
+                    console.log("Indent Acceptance Date Time");
+                    let cfAcceptedDate = getCfObj("Indent Acceptance Date Time", currentTimeInEpoch, "dateTime");
+                    cfsToUpdate.push(cfAcceptedDate);
+                    break;
+
+                case forwardReason.includes("freight.unit.indent.rejected.event"):
+                    console.log("Indent Rejection Date Time");
+                    let cfRejectedDate = getCfObj("Indent Rejection Date Time", currentTimeInEpoch, "dateTime");
+                    cfsToUpdate.push(cfRejectedDate);
                     break;
 
                 case forwardReason.includes("freight.unit.shipment.create.event"):
                     console.log("Vehicle Assignment Date Time");
-                    let cfVehicleDate = getCfObj("Vehicle Assignment Date Time", currentTimeInEpoch, "date");
+                    let cfVehicleDate = getCfObj("Vehicle Assignment Date Time", currentTimeInEpoch, "dateTime");
+                    cfsToUpdate.push(cfVehicleDate);
                     let shId = freight.lineItems[0].shipmentId;
                     let vhNo = await getShipment(shId);
                     let cfVhNo = getCfObj("Vehicle Number", vhNo);
-                    await addCfToDispatch(cfVhNo, freight.uuid);
-                    await addCfToDispatch(cfVehicleDate, freight.uuid);
+                    cfsToUpdate.push(cfVhNo);
                     break;
 
                 default:
-                    // If needed, log that no matching event found here
                     console.log(`No matching forward reason found for event: ${forwardReason}`);
                     break;
             }
         }
-
+        if (cfsToUpdate.length > 0) {
+            await updateCfToDispatch(cfsToUpdate, freight.uuid);
+        }
     } catch (e) {
         console.log(e)
     }

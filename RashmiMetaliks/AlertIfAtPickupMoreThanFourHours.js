@@ -201,8 +201,8 @@ async function sendEmail(jsonArr, to, cc = []) {
 
 async function createShipmentDataObject(sh, transporterName = null) {
     let liveLocData = await getLiveLocation(sh?.uuid);
-    
-    const liveLocationLink = (await getLiveLocation(sh?.uuid))?.data ? 
+
+    const liveLocationLink = (await getLiveLocation(sh?.uuid))?.data ?
         `https://alpha.fretron.com/shared-shipment/v4?code=${liveLocData?.data}` : '';
 
     let currLocation = sh?.currentLocation?.address || '';
@@ -232,7 +232,7 @@ async function createExcelReportConsolidated(shipmentsToAlert) {
             "sahil.aggarwal@fretron.com"
         ]
         const data = await Promise.all(shipmentsToAlert?.map(sh => createShipmentDataObject(sh)));
-        console.log(`total shipments to generate excel report: ${data?.length}`);
+        console.log(`Total shipments to generate excel report: ${data?.length}`);
         if (data?.length > 0) {
             await sendEmail(data, to);
         }
@@ -306,13 +306,19 @@ async function main() {
         return !alerts?.some(alert => alert?.type === alertType);
     });
 
-    console.log(`total shipments to alert: ${shipmentsToAlert?.length}`);
+    if (!shipmentsToAlert || shipmentsToAlert.length === 0) {
+        console.log("No shipments to alert");
+        return;
+    }
+
+    console.log(`Total shipments to alert: ${shipmentsToAlert?.length}`);
     for (let sh of shipmentsToAlert) {
         const status = sh?.shipmentTrackingStatus;
         const alertType = status === "At Pickup Point" ? alertTypePickup : alertTypeDelivery;
         let alert = getAlertSkeleton(alertType);
         await generateAlert(alert, sh);
     }
+
     console.log("-----Generating and Sending Consolidated Excel reports-----");
     await createExcelReportConsolidated(shipmentsToAlert);
     console.log("-----Generating and Sending Transporter Wise Excel reports-----");
