@@ -1,24 +1,11 @@
 const rp = require("request-promise");
 const FRT_PUB_BASE_URL = "https://apis.fretron.com";
-const TOKEN = "";
+const TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIwMjA5NzQsInVzZXJJZCI6ImJvdHVzZXItLTM3MzUzMmFmLTEzOTAtNGUyOC04ODcxLTExYTZlYTcwODUxMiIsIm1vYmlsZU51bWJlciI6ImJvdHVzZXItLTM3MzUzMmFmLTEzOTAtNGUyOC04ODcxLTExYTZlYTcwODUxMiIsIm9yZ0lkIjoiMjA4YWZkYWQtZGVhYi00Yzc2LThkNDktMzBhNzBmNDIwZjM1IiwibmFtZSI6IkJvdCB0b2tlbiIsIm9yZ1R5cGUiOiJGTEVFVF9PV05FUiIsImlzR29kIjpmYWxzZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.g5BbII_VTjjjucZL-VhW5gznhBLVdxa5dqcStjFCQM0";
 const alertTypePickup = "shipment.standby.limit.reached.pickup";
 const alertTypeDelivery = "shipment.standby.limit.reached.delivery";
 const index = "shipments_v2";
 const ORGID = "208afdad-deab-4c76-8d49-30a70f420f35";
 
-function getAlertSkeleton(type) {
-    return {
-        "closedBy": null,
-        "createdAt": Date.now(),
-        "issueId": null,
-        "createdBy": null,
-        "snoozTime": null,
-        "description": "Standy By Limit Reached",
-        "type": type,
-        "status": "OPEN",
-        "updatedAt": null
-    };
-}
 const query = {
     "_source": [
         "uuid",
@@ -32,6 +19,8 @@ const query = {
         "shipmentNumber",
         "fleetInfo.vehicle.vehicleRegistrationNumber",
         "fleetInfo.fleetOwner.name",
+        "fleetInfo.fleetOwner.uuid",
+        "fleetInfo.fleetOwner.contacts",
         "fleetInfo.driver.mobileNumber",
         "consignments.lineItems.material.name",
         "consignments.consignee.name",
@@ -77,6 +66,20 @@ const query = {
     }
 }
 
+function getAlertSkeleton(type) {
+    return {
+        "closedBy": null,
+        "createdAt": Date.now(),
+        "issueId": null,
+        "createdBy": null,
+        "snoozTime": null,
+        "description": "Standy By Limit Reached",
+        "type": type,
+        "status": "OPEN",
+        "updatedAt": null
+    };
+}
+
 async function getLiveLocation(shipmentId) {
     try {
         let url = `${FRT_PUB_BASE_URL}/shipment/v1/shipment/share-sh`
@@ -105,7 +108,6 @@ async function getLiveLocation(shipmentId) {
         return null
     }
 }
-
 
 async function getDataFromElasticV2(index, query) {
     try {
@@ -138,9 +140,7 @@ async function generateAlert(alert, sh) {
             'json': true,
             'body': alert
         })
-        if (res?.status === 200) {
-            console.log(`Standy By Limit Reached alert successfully added on shipmentNo : ${sh?.shipmentNumber}`)
-        } else {
+        if (res?.status != 200) {
             console.log(`Some error in adding Standy By Limit Reached alert on shipmentNo : ${sh?.shipmentNumber}, error: ${res?.error}`)
         }
     }
@@ -149,13 +149,35 @@ async function generateAlert(alert, sh) {
     }
 }
 
-async function sendEmail(jsonArr) {
+async function getBPartner(fleetOwnerUuid) {
+    try {
+        let url = `${FRT_PUB_BASE_URL}/business-partners/v2/partner/${fleetOwnerUuid}`;
+        let options = {
+            method: "GET",
+            uri: url,
+            headers: {
+                'Authorization': TOKEN
+            },
+            json: true
+        };
+        let res = await rp(options);
+        if (res?.status === 200) {
+            return res.data;
+        }
+        return null;
+    } catch (err) {
+        console.log(`Error fetching fleet owner details: ${err.message}`);
+        return null;
+    }
+}
+
+async function sendEmail(jsonArr, to, cc = []) {
     let url = `${FRT_PUB_BASE_URL}/shipment-view/shipments/json/email`;
     let payload = {
         data: jsonArr,
         emailInfo: {
-            to: "sahil.aggarwal@fretron.com",
-            cc: "sahil.aggarwal@fretron.com",
+            to: to,
+            cc: cc,
             subject: "Standy By Limit Reached: Excel Report",
             content: "Please find the attached excel report",
         },
@@ -168,10 +190,7 @@ async function sendEmail(jsonArr) {
             body: payload,
             json: true,
         });
-        console.log(`Sending Json to Excel email api res status : ${res.status}`);
-        if (res.status === 200) {
-            return "Email sent successfully"
-        } else {
+        if (res.status != 200) {
             console.log(`Sending Json to Excel email api res error : ${res.error}`);
         }
     } catch (e) {
@@ -180,56 +199,98 @@ async function sendEmail(jsonArr) {
     return "Some error in sending email"
 }
 
-async function createExcelReport(shipmentsToAlert) {
-    try {
-        const data = await Promise.all(shipmentsToAlert?.map(async sh => {
-            let liveLocData = await getLiveLocation(sh?.uuid);
-            let liveLocationLink = '';
-            if(liveLocData){
-                liveLocationLink = `https://alpha.fretron.com/shared-shipment/v4?code=${liveLocData?.data}`;
-            }
-            let currLocation = sh?.currentLocation?.address || '';
-            if (sh?.shipmentTrackingStatus === "At Pickup Point") {
-                currLocation += ` (${sh?.shipmentStages?.[0]?.place?.name || sh?.shipmentStages?.[0]?.hub?.name || ''})`;
-            } else {
-                currLocation += ` (${sh?.shipmentStages?.[1]?.place?.name || sh?.shipmentStages?.[1]?.hub?.name || ''})`;
-            }
+async function createShipmentDataObject(sh, transporterName = null) {
+    let liveLocData = await getLiveLocation(sh?.uuid);
+    
+    const liveLocationLink = (await getLiveLocation(sh?.uuid))?.data ? 
+        `https://alpha.fretron.com/shared-shipment/v4?code=${liveLocData?.data}` : '';
 
-            return {
-                'Vehicle Number': sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber || '',
-                'Shipment No': sh?.shipmentNumber || '',
-                'Trip Status': sh?.shipmentTrackingStatus || '',
-                'Material': [...new Set(sh?.consignments?.flatMap(c => c?.lineItems?.map(item => item?.material?.name))?.filter(Boolean))].join(" ") || '',
-                'Transporter Name': sh?.fleetInfo?.fleetOwner?.name || '',
-                'Driver No.': sh?.fleetInfo?.driver?.mobileNumber || '',
-                'Origin': sh?.shipmentStages?.[0]?.place?.name || sh?.shipmentStages?.[0]?.hub?.name || '',
-                'Destination': sh?.shipmentStages?.[1]?.place?.name || sh?.shipmentStages?.[1]?.hub?.name || '',
-                'Customer Name': [...new Set(sh?.consignments?.flatMap(c => c?.consignee?.name)?.filter(Boolean))].join(', ') || '',
-                'Live Location Link': liveLocationLink,
-                'Current Location': currLocation,
-                'Standy By Since': ((Date.now() - sh?.shipmentStages?.[sh?.shipmentTrackingStatus === "At Pickup Point" ? 0 : 1]?.arrivalTime) / (1000 * 60 * 60))?.toFixed(2) + ' hours' || '',
-                'Loaded/Unloaded Status': sh?.customFields?.find(field => field?.fieldKey === 'Trip Load')?.value || ''
-            };
-        }));
+    let currLocation = sh?.currentLocation?.address || '';
+    const stageIndex = sh?.shipmentTrackingStatus === "At Pickup Point" ? 0 : 1;
+    currLocation += ` (${sh?.shipmentStages?.[stageIndex]?.place?.name || sh?.shipmentStages?.[stageIndex]?.hub?.name || ''})`;
+
+    return {
+        'Vehicle Number': sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber || '',
+        'Shipment No': sh?.shipmentNumber || '',
+        'Trip Status': sh?.shipmentTrackingStatus || '',
+        'Material': [...new Set(sh?.consignments?.flatMap(c => c?.lineItems?.map(item => item?.material?.name))?.filter(Boolean))].join(" ") || '',
+        'Transporter Name': transporterName || sh?.fleetInfo?.fleetOwner?.name || '',
+        'Driver No.': sh?.fleetInfo?.driver?.mobileNumber || '',
+        'Origin': sh?.shipmentStages?.[0]?.place?.name || sh?.shipmentStages?.[0]?.hub?.name || '',
+        'Destination': sh?.shipmentStages?.[1]?.place?.name || sh?.shipmentStages?.[1]?.hub?.name || '',
+        'Customer Name': [...new Set(sh?.consignments?.flatMap(c => c?.consignee?.name)?.filter(Boolean))].join(', ') || '',
+        'Live Location Link': liveLocationLink,
+        'Current Location': currLocation,
+        'Standy By Since': ((Date.now() - sh?.shipmentStages?.[sh?.shipmentTrackingStatus === "At Pickup Point" ? 0 : 1]?.arrivalTime) / (1000 * 60 * 60))?.toFixed(2) + ' hours' || '',
+        'Loaded/Unloaded Status': sh?.customFields?.find(field => field?.fieldKey === 'Trip Load')?.value || ''
+    };
+}
+
+async function createExcelReportConsolidated(shipmentsToAlert) {
+    try {
+        const to = [
+            "sahil.aggarwal@fretron.com"
+        ]
+        const data = await Promise.all(shipmentsToAlert?.map(sh => createShipmentDataObject(sh)));
         console.log(`total shipments to generate excel report: ${data?.length}`);
         if (data?.length > 0) {
-            await sendEmail(data);
+            await sendEmail(data, to);
         }
-
-
     } catch (error) {
         console.log(`Error creating Excel report: ${error.message}`);
     }
 }
 
+async function createExcelReportTransporterWise(shipmentsToAlert) {
+    try {
+        const shipmentsByTransporter = shipmentsToAlert.reduce((acc, sh) => {
+            const fleetOwnerUuid = sh?.fleetInfo?.fleetOwner?.uuid;
+
+            if (!fleetOwnerUuid) return acc;
+
+            if (!acc[fleetOwnerUuid]) {
+                acc[fleetOwnerUuid] = {
+                    shipments: [],
+                    name: sh?.fleetInfo?.fleetOwner?.name,
+                    contacts: sh?.fleetInfo?.fleetOwner?.contacts || []
+                };
+            }
+            acc[fleetOwnerUuid].shipments.push(sh);
+            return acc;
+        }, {});
+
+        for (const [fleetOwnerUuid, group] of Object.entries(shipmentsByTransporter)) {
+            if (!group.contacts?.length) {
+                let bPartner = await getBPartner(fleetOwnerUuid);
+                group.contacts = bPartner?.contacts || [];
+            }
+
+            const data = await Promise.all(group.shipments?.map(sh => createShipmentDataObject(sh, group.name)));
+
+            if (data?.length > 0) {
+                const transporterEmails = [...new Set(
+                    group.contacts
+                        ?.flatMap(contact => contact?.emails || [])
+                        ?.filter(Boolean)
+                )] || [];
+
+                if (transporterEmails.length > 0) {
+                    console.log(`Sending report to transporter ${group.name} with ${data.length} shipments`);
+                    await sendEmail(data, ["sahil.aggarwal@fretron.com"]);
+                }
+            }
+        }
+    } catch (error) {
+        console.log(`Error creating transporter-wise Excel reports: ${error.message}`);
+    }
+}
+
 async function main() {
-    let shipmentsFromElastic = await getDataFromElasticV2(index, query);
-    let shipments = shipmentsFromElastic?.map(ship => ship?._source);
+    const shipments = (await getDataFromElasticV2(index, query))?.map(ship => ship?._source);
     if (!shipments) {
         console.log("No shipments found");
         return;
     }
-
     const fourHoursInMs = 4 * 60 * 60 * 1000;
     const currentTime = Date.now();
     const shipmentsToAlert = shipments?.filter(shipment => {
@@ -252,7 +313,10 @@ async function main() {
         let alert = getAlertSkeleton(alertType);
         await generateAlert(alert, sh);
     }
-    await createExcelReport(shipmentsToAlert);
+    console.log("-----Generating and Sending Consolidated Excel reports-----");
+    await createExcelReportConsolidated(shipmentsToAlert);
+    console.log("-----Generating and Sending Transporter Wise Excel reports-----");
+    await createExcelReportTransporterWise(shipmentsToAlert);
 }
 
 main();
