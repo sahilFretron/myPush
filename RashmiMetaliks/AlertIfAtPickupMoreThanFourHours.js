@@ -294,14 +294,15 @@ async function main() {
     const fourHoursInMs = 4 * 60 * 60 * 1000;
     const currentTime = Date.now();
     const shipmentsToAlert = shipments?.filter(shipment => {
-        const arrivalTime = shipment?.shipmentStages?.[0]?.arrivalTime;
+        const status = shipment?.shipmentTrackingStatus;
+        const index = status === "At Pickup Point" ? 0 : 1;
+        const arrivalTime = shipment?.shipmentStages?.[index]?.arrivalTime;
         if (!arrivalTime) return false;
 
         const timeDifference = currentTime - arrivalTime;
         if (timeDifference <= fourHoursInMs) return false;
 
         const alerts = shipment?.alerts || [];
-        const status = shipment?.shipmentTrackingStatus;
         const alertType = status === "At Pickup Point" ? alertTypePickup : alertTypeDelivery;
         return !alerts?.some(alert => alert?.type === alertType);
     });
