@@ -81,6 +81,7 @@ const RML6_BRANCH = {
     "officeType": null,
     "materialServices": null
 }
+
 const OUTBOUND_CF = {
     "indexedValue": [
         "Trip Type_Outbound Movement"
@@ -104,6 +105,7 @@ const OUTBOUND_CF = {
     "value": "Outbound Movement",
     "isRemark": false
 }
+
 const query = {
     "_source": ["uuid"],
     "size": 100,
@@ -124,6 +126,7 @@ const query = {
         }
     }
 }
+
 async function getDataFromElastic(index, query) {
     try {
         let url = `${FRT_PUB_BASE_URL}/shipment-view/proxy/to/elastic`
@@ -204,3 +207,5 @@ async function main() {
 }
 
 main()
+
+
