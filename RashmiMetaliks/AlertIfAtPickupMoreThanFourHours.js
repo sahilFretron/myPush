@@ -38,7 +38,7 @@ const query = {
                 {
                     "term": {
                         "orgId.keyword": {
-                            "value": "208afdad-deab-4c76-8d49-30a70f420f35"
+                            "value": ORGID
                         }
                     }
                 },
