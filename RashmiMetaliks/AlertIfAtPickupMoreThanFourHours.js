@@ -171,15 +171,15 @@ async function getBPartner(fleetOwnerUuid) {
     }
 }
 
-async function sendEmail(jsonArr, to, cc = []) {
+async function sendEmail(html, jsonArr, to, cc = []) {
     let url = `${FRT_PUB_BASE_URL}/shipment-view/shipments/json/email`;
     let payload = {
         data: jsonArr,
         emailInfo: {
             to: to,
             cc: cc,
-            subject: "Standy By Limit Reached: Excel Report",
-            content: "Please find the attached excel report",
+            subject: "Report for Standy By Limit Reached: Rashmi Metaliks Ltd.",
+            html: html
         },
         orgId: ORGID,
     };
@@ -234,7 +234,8 @@ async function createExcelReportConsolidated(shipmentsToAlert) {
         const data = await Promise.all(shipmentsToAlert?.map(sh => createShipmentDataObject(sh)));
         console.log(`Total shipments to generate excel report: ${data?.length}`);
         if (data?.length > 0) {
-            await sendEmail(data, to);
+            let content = convertJSONtoHTML(data);
+            await sendEmail(content, data, to);
         }
     } catch (error) {
         console.log(`Error creating Excel report: ${error.message}`);
@@ -276,13 +277,61 @@ async function createExcelReportTransporterWise(shipmentsToAlert) {
 
                 if (transporterEmails.length > 0) {
                     console.log(`Sending report to transporter ${group.name} with ${data.length} shipments`);
-                    await sendEmail(data, ["sahil.aggarwal@fretron.com"]);
+                    let content = convertJSONtoHTML(data);
+                    await sendEmail(content, data, ["sahil.aggarwal@fretron.com"]);
                 }
             }
         }
     } catch (error) {
         console.log(`Error creating transporter-wise Excel reports: ${error.message}`);
     }
+}
+
+function convertJSONtoHTML(jsonArray) {
+    if (!jsonArray || jsonArray.length === 0) {
+        return '';
+    }
+
+    const headers = Object.keys(jsonArray[0]);
+
+    let htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div style="font-family: Arial, sans-serif;">
+        <h2 style="color: #333;">Standby Limit Report</h2>
+        <div style="overflow-x: auto;">
+            <table style="border-collapse: collapse; width: 100%; min-width: 600px; border: 1px solid #ddd;">
+                <thead>
+                    <tr style="background-color: #f8f9fa;">
+                        ${headers.map(header =>
+        `<th style="border: 1px solid #ddd; padding: 12px 8px; text-align: left; color: #333;">${header}</th>`
+    ).join('')}
+                    </tr>
+                </thead>
+                <tbody>
+                    ${jsonArray.map((item, index) => `
+                        <tr style="background-color: ${index % 2 === 0 ? '#ffffff' : '#f8f9fa'}">
+                            ${headers.map(header =>
+        `<td style="border: 1px solid #ddd; padding: 8px; color: #333;">${item[header] || ''}</td>`
+    ).join('')}
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        </div>
+        <p style="color: #666; font-size: 12px; margin-top: 20px;">
+            This is an automated report. Please do not reply to this email.
+        </p>
+    </div>
+</body>
+</html>`;
+
+    return htmlContent;
 }
 
 async function main() {
@@ -300,7 +349,7 @@ async function main() {
         if (!arrivalTime) return false;
 
         const timeDifference = currentTime - arrivalTime;
-        if (timeDifference <= fourHoursInMs) return false;
+        if (timeDifference >= fourHoursInMs) return true;
 
         const alerts = shipment?.alerts || [];
         const alertType = status === "At Pickup Point" ? alertTypePickup : alertTypeDelivery;
@@ -322,8 +371,8 @@ async function main() {
 
     console.log("-----Generating and Sending Consolidated Excel reports-----");
     await createExcelReportConsolidated(shipmentsToAlert);
-    console.log("-----Generating and Sending Transporter Wise Excel reports-----");
-    await createExcelReportTransporterWise(shipmentsToAlert);
+    // console.log("-----Generating and Sending Transporter Wise Excel reports-----");
+    // await createExcelReportTransporterWise(shipmentsToAlert);
 }
 
 main();
