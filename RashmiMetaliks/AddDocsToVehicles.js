@@ -1,1787 +1,929 @@
 const rp = require("request-promise");
 const BASE_URL = "https://apis.fretron.com";
 const TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIwMjA5NzQsInVzZXJJZCI6ImJvdHVzZXItLTM3MzUzMmFmLTEzOTAtNGUyOC04ODcxLTExYTZlYTcwODUxMiIsIm1vYmlsZU51bWJlciI6ImJvdHVzZXItLTM3MzUzMmFmLTEzOTAtNGUyOC04ODcxLTExYTZlYTcwODUxMiIsIm9yZ0lkIjoiMjA4YWZkYWQtZGVhYi00Yzc2LThkNDktMzBhNzBmNDIwZjM1IiwibmFtZSI6IkJvdCB0b2tlbiIsIm9yZ1R5cGUiOiJGTEVFVF9PV05FUiIsImlzR29kIjpmYWxzZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.g5BbII_VTjjjucZL-VhW5gznhBLVdxa5dqcStjFCQM0";
-const vehicleCodes = [
-    'WB76B1552',
-    'NL01Q0940',
-    'NL01A2836',
-    'NL01K4503',
-    'NL01Q0941',
-    'WB33D9396',
-    'WB59C8773',
-    'WB11F0762',
-    'WB11D3341',
-    'WB33B4164',
-    'NL01AA0268',
-    'NL01K4399',
-    'WB11F0962',
-    'NL01AH8628',
-    'WB33E2721',
-    'NL01K4505',
-    'WB41H0455',
-    'WB37D2193',
-    'WB33F2709',
-    'WB33B4944',
-    'WB41E8534',
-    'WB59C8762',
-    'WB33E2056',
-    'NL02Q7971',
-    'NL01Q0938',
-    'WB781562',
-    'NL01AJ1158',
-    'WB29A5175',
-    'NL01G6229',
-    'NL01AH8629',
-    'NL01AD6357',
-    'CG04MR6452',
-    'NL02Q8950',
-    'WB33F2746',
-    'WB33F2704',
-    'WB37D2194',
-    'WB350799',
-    'OD04L6823',
-    'TS12UB1979',
-    'JK01AF6841',
-    'WB33B7010',
-    'JK01AF6842',
-    'JH05CX3168',
-    'NL01AC0035',
-    'NL01AC0040',
-    'NL01K4531',
-    'TS12UB1449',
-    'JH02BM8472',
-    'WB916609',
-    'WB76B1548',
-    'NL01G9047',
-    'JH05BN3505',
-    'NL01AE8088',
-    'WB59B7101',
-    'NL01K2329',
-    'NL04D7617',
-    'WB76A2255',
-    'AP23Y5222',
-    'WB11E7786',
-    'WB37E6121',
-    'HR38X0619',
-    'NL02Q3587',
-    'NL01AG5983',
-    'NL02Q9638',
-    'NL01AB3976',
-    'WB11B9036',
-    'NL01G2776',
-    'WB76A7529',
-    'WB11E7586',
-    'WB355602',
-    'HR38X3685',
-    'NL01AG6058',
-    'JH05CX1305',
-    'NL01K0315',
-    'OR01P0841',
-    'WB76B2687',
-    'HR38X3336',
-    'NL02AA0467',
-    'WB33H3051',
-    'NL02Q9374',
-    'NL02Q8870',
-    'NL01AB4592',
-    'TS12UC0737',
-    'NL01AB2424',
-    'OD04L6826',
-    'WB51C7207',
-    'HR38X5523',
-    'WB11B7651',
-    'WB11E1471',
-    'NL02Q9147',
-    'OD04L6825',
-    'NL01AB1374',
-    'NL01K5325',
-    'WB37E6125',
-    'OD04L6827',
-    'NL01G2062',
-    'WB49N1039',
-    'NL01G6886',
-    'WB11B8844',
-    'OD04L6830',
-    'NL01K1491',
-    'WB65D7088',
-    'TS12UB1504',
-    'JH05DN4029',
-    'JH05DN9764',
-    'WB781562',
-    'NL01K1185',
-    'WB917819',
-    'NL01G3625',
-    'NL01G3585',
-    'NL01G4087',
-    'WB76B1703',
-    'JH05DN0452',
-    'NL01G6823',
-    'WB37E6127',
-    'WB76A2256',
-    'NL01AE0165',
-    'WB11D3401',
-    'HR38X2353',
-    'HR38W0398',
-    'NL01G8353',
-    'WB37E6106',
-    'NL01D6786'
-]
 
-const resourceIds = [
+const vehicleData = [
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "b247f770-0501-4b9b-8499-66b479c91074",
-        "_score": 9.141678,
+        "_id": "5cf159a1-57df-4223-a16c-7b3c7bfac7c4",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "b247f770-0501-4b9b-8499-66b479c91074",
+            "uuid": "5cf159a1-57df-4223-a16c-7b3c7bfac7c4",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB33D9396"
-            }
+                "vehicleRegistrationNumber": "HR55M2821"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "23c0a7ee-1e82-40b1-823f-6bae35488900",
-        "_score": 9.141678,
+        "_id": "63152cfb-a5d0-4ae4-8ae0-0d6be8c0e078",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "23c0a7ee-1e82-40b1-823f-6bae35488900",
+            "uuid": "63152cfb-a5d0-4ae4-8ae0-0d6be8c0e078",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB781562"
-            }
+                "vehicleRegistrationNumber": "HR38S3348"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "11cf49e8-1a36-42a7-bc46-3747a76b9412",
-        "_score": 9.141678,
+        "_id": "9c6681da-7635-48ad-98e8-6babeb5eb7cd",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "11cf49e8-1a36-42a7-bc46-3747a76b9412",
+            "uuid": "9c6681da-7635-48ad-98e8-6babeb5eb7cd",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB59C8773"
-            }
+                "vehicleRegistrationNumber": "HR38W0858"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "786c0f79-9d9e-45e2-8e3e-34409671f7d2",
-        "_score": 9.141678,
+        "_id": "00d3d2cb-6e70-4b88-a0a6-fb3d87243065",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "786c0f79-9d9e-45e2-8e3e-34409671f7d2",
+            "uuid": "00d3d2cb-6e70-4b88-a0a6-fb3d87243065",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB76B1548"
-            }
+                "vehicleRegistrationNumber": "HR55M2814"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "a2405534-3462-43f3-b179-9645a3009924",
-        "_score": 9.141678,
+        "_id": "8f7b8d53-523e-4f29-8e8e-11ccb2cbdc31",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "a2405534-3462-43f3-b179-9645a3009924",
+            "uuid": "8f7b8d53-523e-4f29-8e8e-11ccb2cbdc31",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01G9047"
-            }
+                "vehicleRegistrationNumber": "HR38AB7390"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "e0dd9ae1-58a1-4ca3-9720-b4d7d721b907",
-        "_score": 9.141678,
+        "_id": "b9214f17-9ab0-4f4f-af88-0e10f2e9eb38",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "e0dd9ae1-58a1-4ca3-9720-b4d7d721b907",
+            "uuid": "b9214f17-9ab0-4f4f-af88-0e10f2e9eb38",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01AE8088"
-            }
+                "vehicleRegistrationNumber": "HR38Z0363"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "c32dd736-3719-48ab-bdda-2bdaf44f9c5b",
-        "_score": 9.141678,
+        "_id": "69ed14f5-9e4a-48b6-9fa7-0df8125f793c",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "c32dd736-3719-48ab-bdda-2bdaf44f9c5b",
+            "uuid": "69ed14f5-9e4a-48b6-9fa7-0df8125f793c",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB49N1039"
-            }
+                "vehicleRegistrationNumber": "HR38U7759"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "c764fe50-04dc-4523-a411-c71cdf71cd6c",
-        "_score": 9.141678,
+        "_id": "1913f030-aafc-4d9e-9a50-8e73439db632",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "c764fe50-04dc-4523-a411-c71cdf71cd6c",
+            "uuid": "1913f030-aafc-4d9e-9a50-8e73439db632",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01AE0165"
-            }
+                "vehicleRegistrationNumber": "HR55Y8477"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "41e9b283-469b-48c6-bace-60aa4553f40e",
-        "_score": 9.141678,
+        "_id": "cbf3c8a7-9803-4b1e-9a6e-6226cbe0980f",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "41e9b283-469b-48c6-bace-60aa4553f40e",
+            "uuid": "cbf3c8a7-9803-4b1e-9a6e-6226cbe0980f",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL02Q9638"
-            }
+                "vehicleRegistrationNumber": "HR38U5807"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "35c3521f-1b8c-4070-8011-4f2037809618",
-        "_score": 9.141678,
+        "_id": "e1f4cf1c-a971-4770-bddb-761aa2f11791",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "35c3521f-1b8c-4070-8011-4f2037809618",
+            "uuid": "e1f4cf1c-a971-4770-bddb-761aa2f11791",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB76B2687"
-            }
+                "vehicleRegistrationNumber": "HR55W7177"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "47467ff0-ffa6-4857-b688-8cfc23b89d2c",
-        "_score": 9.141678,
+        "_id": "a6e31ca3-74c8-4e3c-a726-a60cf055e7a6",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "47467ff0-ffa6-4857-b688-8cfc23b89d2c",
+            "uuid": "a6e31ca3-74c8-4e3c-a726-a60cf055e7a6",
             "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-6"
-            }
+                "vehicleRegistrationNumber": "HR38R6892"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "c93ef7d7-e1d8-4240-a4b2-3a7ad33e1a76",
-        "_score": 9.141678,
+        "_id": "a4a3da7e-8dcb-4ff5-b7ca-fc2d50972cf5",
+        "_score": 8.441172,
         "_source": {
-            "uuid": "c93ef7d7-e1d8-4240-a4b2-3a7ad33e1a76",
+            "uuid": "a4a3da7e-8dcb-4ff5-b7ca-fc2d50972cf5",
             "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-4"
-            }
+                "vehicleRegistrationNumber": "HR38R6895"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "6852834c-defb-4f99-b0b8-9c9b096e469d",
-        "_score": 9.141678,
+        "_id": "7fb7d1b3-cd33-4dbe-9c95-ce54a1fffd81",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "6852834c-defb-4f99-b0b8-9c9b096e469d",
+            "uuid": "7fb7d1b3-cd33-4dbe-9c95-ce54a1fffd81",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01K4531"
-            }
+                "vehicleRegistrationNumber": "HR38X9566"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "29e9356e-f644-490c-8b86-10a8b9b92386",
-        "_score": 9.141678,
+        "_id": "65bc53d1-f447-45ac-8e02-32a304ba3aeb",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "29e9356e-f644-490c-8b86-10a8b9b92386",
+            "uuid": "65bc53d1-f447-45ac-8e02-32a304ba3aeb",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01AG5983"
-            }
+                "vehicleRegistrationNumber": "HR38S3346"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "d85d8497-e8f9-4716-9304-ed9254eedf49",
-        "_score": 9.141678,
+        "_id": "de59f807-7692-4c6d-8187-3a3c936b0b62",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "d85d8497-e8f9-4716-9304-ed9254eedf49",
+            "uuid": "de59f807-7692-4c6d-8187-3a3c936b0b62",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01G2062"
-            }
+                "vehicleRegistrationNumber": "HR38S3349"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "7ff0feb9-2155-42c1-904e-5512019d32e6",
-        "_score": 9.141678,
+        "_id": "c1452f55-c0bf-4378-8533-f85b022bfc0a",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "7ff0feb9-2155-42c1-904e-5512019d32e6",
+            "uuid": "c1452f55-c0bf-4378-8533-f85b022bfc0a",
             "vehicle": {
-                "vehicleRegistrationNumber": "JH05CX1305"
-            }
+                "vehicleRegistrationNumber": "HR38Z8611"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "38a0cd72-74f1-44e2-8a10-74190ce94149",
-        "_score": 9.141678,
+        "_id": "968cdf03-716b-4d83-b487-121c8c030f46",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "38a0cd72-74f1-44e2-8a10-74190ce94149",
+            "uuid": "968cdf03-716b-4d83-b487-121c8c030f46",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01G4087"
-            }
+                "vehicleRegistrationNumber": "HR38U7600"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "1d8344b2-6a48-4eb5-98c0-ccd78b3a5b29",
-        "_score": 9.141678,
+        "_id": "5e091683-e827-45cf-91f0-b40c5a7c6fea",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "1d8344b2-6a48-4eb5-98c0-ccd78b3a5b29",
+            "uuid": "5e091683-e827-45cf-91f0-b40c5a7c6fea",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB33F2709"
-            }
+                "vehicleRegistrationNumber": "HR38AB6088"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "2ef721c6-6e4b-4e7c-81ef-f05e5ba081a9",
-        "_score": 9.141678,
+        "_id": "c42afd95-346e-4da8-916b-47b5672bcfba",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "2ef721c6-6e4b-4e7c-81ef-f05e5ba081a9",
+            "uuid": "c42afd95-346e-4da8-916b-47b5672bcfba",
             "vehicle": {
-                "vehicleRegistrationNumber": "JK01AF6841"
-            }
+                "vehicleRegistrationNumber": "HR38V7024"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "d3c6f20e-e4c3-48f7-b562-bbc4f0921bdb",
-        "_score": 9.141678,
+        "_id": "ce28bdc6-9b0a-4a61-ae31-7635fbf638ef",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "d3c6f20e-e4c3-48f7-b562-bbc4f0921bdb",
+            "uuid": "ce28bdc6-9b0a-4a61-ae31-7635fbf638ef",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB33F2746"
-            }
+                "vehicleRegistrationNumber": "HR55W3777"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "676c8415-2d41-49cf-a176-a5d4179581dd",
-        "_score": 9.141678,
+        "_id": "3317e185-25a9-4499-8cc6-a7758cb2e1c3",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "676c8415-2d41-49cf-a176-a5d4179581dd",
+            "uuid": "3317e185-25a9-4499-8cc6-a7758cb2e1c3",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB33B4944"
-            }
+                "vehicleRegistrationNumber": "HR38AB5614"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "14375a1a-1996-4564-8d4e-e67921d7c0c8",
-        "_score": 9.106204,
+        "_id": "2a747c51-8627-4556-a82c-a565944012d9",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "14375a1a-1996-4564-8d4e-e67921d7c0c8",
+            "uuid": "2a747c51-8627-4556-a82c-a565944012d9",
             "vehicle": {
-                "vehicleRegistrationNumber": "CG04MR6452"
-            }
+                "vehicleRegistrationNumber": "HR55V0432"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "2ab3748f-a930-4b4c-a0f8-dad7110900b1",
-        "_score": 9.106204,
+        "_id": "21da82b2-3bb3-42b3-907c-b5610e85b39c",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "2ab3748f-a930-4b4c-a0f8-dad7110900b1",
+            "uuid": "21da82b2-3bb3-42b3-907c-b5610e85b39c",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01K4399"
-            }
+                "vehicleRegistrationNumber": "HR38R6894"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "7370653b-696b-4c57-9004-ddeefa42c2d5",
-        "_score": 9.106204,
+        "_id": "09a69236-0a91-4d78-b12a-bb5dfd57df89",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "7370653b-696b-4c57-9004-ddeefa42c2d5",
+            "uuid": "09a69236-0a91-4d78-b12a-bb5dfd57df89",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB33B4164"
-            }
+                "vehicleRegistrationNumber": "HR55V5373"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "e644a9e5-1cbd-4b0f-b099-cee478c4c38c",
-        "_score": 9.106204,
+        "_id": "52a08ecb-6b8d-438f-a24d-32426169809f",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "e644a9e5-1cbd-4b0f-b099-cee478c4c38c",
+            "uuid": "52a08ecb-6b8d-438f-a24d-32426169809f",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB37D2194"
-            }
+                "vehicleRegistrationNumber": "HR38AH1186"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "a4e333ff-c0d6-4701-ae4f-7ca14dc65224",
-        "_score": 9.106204,
+        "_id": "3937a040-35f1-422b-ad73-cd5201c1cb1e",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "a4e333ff-c0d6-4701-ae4f-7ca14dc65224",
+            "uuid": "3937a040-35f1-422b-ad73-cd5201c1cb1e",
             "vehicle": {
-                "vehicleRegistrationNumber": "JK01AF6842"
-            }
+                "vehicleRegistrationNumber": "UP64AT0187"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "4b428652-9e45-435a-9933-7cf19a289ba7",
-        "_score": 9.106204,
+        "_id": "4d0b7c45-4051-4ea9-84b7-ea483b804254",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "4b428652-9e45-435a-9933-7cf19a289ba7",
+            "uuid": "4d0b7c45-4051-4ea9-84b7-ea483b804254",
             "vehicle": {
-                "vehicleRegistrationNumber": "OD04L6826"
-            }
+                "vehicleRegistrationNumber": "HR38AG0438"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "b722f68b-4f81-4d15-afe8-1b505a9467ac",
-        "_score": 9.106204,
+        "_id": "163b1e3c-5cc4-49d9-a57f-2cef33631ed6",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "b722f68b-4f81-4d15-afe8-1b505a9467ac",
+            "uuid": "163b1e3c-5cc4-49d9-a57f-2cef33631ed6",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01AG6058"
-            }
+                "vehicleRegistrationNumber": "HR55T6544"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "eac579af-7950-42a1-93a9-aacde0032749",
-        "_score": 9.106204,
+        "_id": "34c1bbc8-2d02-453f-bbdf-4a33b495644d",
+        "_score": 8.40249,
         "_source": {
-            "uuid": "eac579af-7950-42a1-93a9-aacde0032749",
+            "uuid": "34c1bbc8-2d02-453f-bbdf-4a33b495644d",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL02Q9374"
-            }
+                "vehicleRegistrationNumber": "HR38W8894"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "3884b790-0a44-4026-b279-783c1e7dcbe5",
-        "_score": 9.106204,
+        "_id": "ebd66307-b99d-47ca-a5b6-d2d4c61187b1",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "3884b790-0a44-4026-b279-783c1e7dcbe5",
+            "uuid": "ebd66307-b99d-47ca-a5b6-d2d4c61187b1",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01G3585"
-            }
+                "vehicleRegistrationNumber": "HR38AH4332"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "57241ce2-b7a5-4940-aab1-a3e6ea7fd097",
-        "_score": 9.106204,
+        "_id": "e872119f-5288-4a07-9811-e3472c9334f8",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "57241ce2-b7a5-4940-aab1-a3e6ea7fd097",
+            "uuid": "e872119f-5288-4a07-9811-e3472c9334f8",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB11D3401"
-            }
+                "vehicleRegistrationNumber": "HR38V3110"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "69ec3fdc-1dba-4f49-9de6-b2bc9b45cd0c",
-        "_score": 9.106204,
+        "_id": "bc86f768-a55f-466b-8ddb-74f4da23f2ea",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "69ec3fdc-1dba-4f49-9de6-b2bc9b45cd0c",
+            "uuid": "bc86f768-a55f-466b-8ddb-74f4da23f2ea",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB11B8844"
-            }
+                "vehicleRegistrationNumber": "HR38V5774"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "85bf4594-c4b4-411f-89b3-c414f52895ab",
-        "_score": 9.106204,
+        "_id": "a1c540ab-6c93-4882-861d-c8514383a370",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "85bf4594-c4b4-411f-89b3-c414f52895ab",
+            "uuid": "a1c540ab-6c93-4882-861d-c8514383a370",
             "vehicle": {
-                "vehicleRegistrationNumber": "HR38X2353"
-            }
+                "vehicleRegistrationNumber": "HR38AH0425"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "b23ec8ea-21cb-4d89-be90-41019b689c33",
-        "_score": 9.106204,
+        "_id": "db2c4c02-3325-4a1e-8be7-5fa4d171d50a",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "b23ec8ea-21cb-4d89-be90-41019b689c33",
+            "uuid": "db2c4c02-3325-4a1e-8be7-5fa4d171d50a",
             "vehicle": {
-                "vehicleRegistrationNumber": "TS12UB1504"
-            }
+                "vehicleRegistrationNumber": "HR38AG0720"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "5767afca-3da4-4dbd-9683-6811342bc7c3",
-        "_score": 9.106204,
+        "_id": "d3a18040-0634-4b1f-9ff9-2321f23f577d",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "5767afca-3da4-4dbd-9683-6811342bc7c3",
+            "uuid": "d3a18040-0634-4b1f-9ff9-2321f23f577d",
             "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-10"
-            }
+                "vehicleRegistrationNumber": "HR38U0233"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "cadbe1dc-b228-47c1-82af-8e033891c79d",
-        "_score": 9.106204,
+        "_id": "897c92ec-bbff-4f8a-afcb-822d88133895",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "cadbe1dc-b228-47c1-82af-8e033891c79d",
+            "uuid": "897c92ec-bbff-4f8a-afcb-822d88133895",
             "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-1"
-            }
+                "vehicleRegistrationNumber": "UP58T6901"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "672efc8f-c026-4117-a93a-1d282ca1f919",
-        "_score": 9.106204,
+        "_id": "6aaf6f3d-71f4-4eb1-abcb-55dce9f0ac23",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "672efc8f-c026-4117-a93a-1d282ca1f919",
+            "uuid": "6aaf6f3d-71f4-4eb1-abcb-55dce9f0ac23",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01Q0941"
-            }
+                "vehicleRegistrationNumber": "HR38Y8471"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "8a77f67d-f0f6-400e-bb7d-ca4e5537d7d7",
-        "_score": 9.106204,
+        "_id": "0749fc08-679d-4ee8-b855-251882f94fe4",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "8a77f67d-f0f6-400e-bb7d-ca4e5537d7d7",
+            "uuid": "0749fc08-679d-4ee8-b855-251882f94fe4",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB11E7786"
-            }
+                "vehicleRegistrationNumber": "HR38S3345"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "e69a653a-bbe1-4acc-b8fd-bef1a7ab74dd",
-        "_score": 9.106204,
+        "_id": "4112454e-3437-42b9-8f6f-487fe742cb44",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "e69a653a-bbe1-4acc-b8fd-bef1a7ab74dd",
+            "uuid": "4112454e-3437-42b9-8f6f-487fe742cb44",
             "vehicle": {
-                "vehicleRegistrationNumber": "TS12UB1979"
-            }
+                "vehicleRegistrationNumber": "HR55W8738"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "a83eb4f8-c84e-4252-bf38-c4d403dc0f5f",
-        "_score": 9.106204,
+        "_id": "02150215-5b76-4b59-a849-62390303ec84",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "a83eb4f8-c84e-4252-bf38-c4d403dc0f5f",
+            "uuid": "02150215-5b76-4b59-a849-62390303ec84",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL02AA0467"
-            }
+                "vehicleRegistrationNumber": "HR38Z9396"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "f1a87889-4d1d-4796-bfe2-f81eea0271a5",
-        "_score": 9.106204,
+        "_id": "5486e388-8aeb-4181-8364-ffec6ef20b12",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "f1a87889-4d1d-4796-bfe2-f81eea0271a5",
+            "uuid": "5486e388-8aeb-4181-8364-ffec6ef20b12",
             "vehicle": {
-                "vehicleRegistrationNumber": "JH05DN9764"
-            }
+                "vehicleRegistrationNumber": "HR38V2931"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "24eed20b-4c7f-4c2d-8473-e1e4f3728931",
-        "_score": 9.106204,
+        "_id": "46ab1571-4aaa-4a05-90fe-cfe679e38269",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "24eed20b-4c7f-4c2d-8473-e1e4f3728931",
+            "uuid": "46ab1571-4aaa-4a05-90fe-cfe679e38269",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB11D3341"
-            }
+                "vehicleRegistrationNumber": "HR38AG7934"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "3de2ffc7-b914-483b-b815-69b0e2e05d7f",
-        "_score": 8.769739,
+        "_id": "46078e38-7ba7-4da5-a372-86fa65b346ea",
+        "_score": 8.3586445,
         "_source": {
-            "uuid": "3de2ffc7-b914-483b-b815-69b0e2e05d7f",
+            "uuid": "46078e38-7ba7-4da5-a372-86fa65b346ea",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB37D2193"
-            }
+                "vehicleRegistrationNumber": "HR38R6893"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "46f117fb-9c26-4d5d-80cd-25297cd2d736",
-        "_score": 8.769739,
+        "_id": "84802737-580d-42a6-a6f9-e9e39b112cd0",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "46f117fb-9c26-4d5d-80cd-25297cd2d736",
+            "uuid": "84802737-580d-42a6-a6f9-e9e39b112cd0",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB41H0455"
-            }
+                "vehicleRegistrationNumber": "HR38Z2975"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "2b1608b7-a093-4dc1-9128-4d302cc7d120",
-        "_score": 8.769739,
+        "_id": "65eb6eaf-222e-48a7-bb62-8a48d94cb694",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "2b1608b7-a093-4dc1-9128-4d302cc7d120",
+            "uuid": "65eb6eaf-222e-48a7-bb62-8a48d94cb694",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB33E2056"
-            }
+                "vehicleRegistrationNumber": "HR55W4007"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "58ee508a-731c-4833-a92a-88d141d25958",
-        "_score": 8.769739,
+        "_id": "6b80c67b-ab2c-4c34-b77e-3402653c4427",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "58ee508a-731c-4833-a92a-88d141d25958",
+            "uuid": "6b80c67b-ab2c-4c34-b77e-3402653c4427",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB59C8762"
-            }
+                "vehicleRegistrationNumber": "UP51AT5288"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "01e7c299-b18a-408b-b024-5a882e204e61",
-        "_score": 8.769739,
+        "_id": "5146642c-b26d-4d34-a02f-39ca85e1b1cd",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "01e7c299-b18a-408b-b024-5a882e204e61",
+            "uuid": "5146642c-b26d-4d34-a02f-39ca85e1b1cd",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB33F2704"
-            }
+                "vehicleRegistrationNumber": "HR38AG0825"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "49580474-2ad3-4f4f-bcff-c5c95c362064",
-        "_score": 8.769739,
+        "_id": "1d1c2957-a017-4089-b647-22f88b6bda24",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "49580474-2ad3-4f4f-bcff-c5c95c362064",
+            "uuid": "1d1c2957-a017-4089-b647-22f88b6bda24",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL04D7617"
-            }
+                "vehicleRegistrationNumber": "HR38V5320"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "59e6a2e4-bd27-4da3-9730-e2a67fab2db0",
-        "_score": 8.769739,
+        "_id": "3bcc0b69-1181-44cb-ad68-410e36ad8c80",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "59e6a2e4-bd27-4da3-9730-e2a67fab2db0",
+            "uuid": "3bcc0b69-1181-44cb-ad68-410e36ad8c80",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01G6229"
-            }
+                "vehicleRegistrationNumber": "HR38V7030"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "f7a4f7a8-383e-4485-8850-6dcf90badc81",
-        "_score": 8.769739,
+        "_id": "47a22ccb-1f5c-45ba-80e3-236bf9c01d06",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "f7a4f7a8-383e-4485-8850-6dcf90badc81",
+            "uuid": "47a22ccb-1f5c-45ba-80e3-236bf9c01d06",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01AA0268"
-            }
+                "vehicleRegistrationNumber": "HR38AG0393"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "9342cba9-a9b7-4acf-88b7-ed3fa1efc503",
-        "_score": 8.769739,
+        "_id": "d0ef5010-99ea-4365-a9a0-deb25673cd4d",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "9342cba9-a9b7-4acf-88b7-ed3fa1efc503",
+            "uuid": "d0ef5010-99ea-4365-a9a0-deb25673cd4d",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01K2329"
-            }
+                "vehicleRegistrationNumber": "HR55V7496"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "16cad7da-dec1-48d3-a3de-e54e0c0c45f2",
-        "_score": 8.769739,
+        "_id": "8dd96f8d-e396-4516-be32-5b02e654963a",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "16cad7da-dec1-48d3-a3de-e54e0c0c45f2",
+            "uuid": "8dd96f8d-e396-4516-be32-5b02e654963a",
             "vehicle": {
-                "vehicleRegistrationNumber": "AP23Y5222"
-            }
+                "vehicleRegistrationNumber": "HR58B6080"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "409705ee-b1fb-4db7-8d7e-85e7c5fe1c1c",
-        "_score": 8.769739,
+        "_id": "99e75076-5d70-4934-b0f7-9a76c965f8e2",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "409705ee-b1fb-4db7-8d7e-85e7c5fe1c1c",
+            "uuid": "99e75076-5d70-4934-b0f7-9a76c965f8e2",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01AH8629"
-            }
+                "vehicleRegistrationNumber": "HR55M2812"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "591de59a-de2a-4c28-8faf-7e453ca9c77c",
-        "_score": 8.769739,
+        "_id": "b1486ccf-9f1d-486f-b7bf-35db84c47818",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "591de59a-de2a-4c28-8faf-7e453ca9c77c",
+            "uuid": "b1486ccf-9f1d-486f-b7bf-35db84c47818",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL02Q3587"
-            }
+                "vehicleRegistrationNumber": "PB13BQ4938"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "851b3767-9e88-4e86-bfa1-17e4aacd36a9",
-        "_score": 8.769739,
+        "_id": "97460ce9-d935-4bd7-8699-142171db742c",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "851b3767-9e88-4e86-bfa1-17e4aacd36a9",
+            "uuid": "97460ce9-d935-4bd7-8699-142171db742c",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB11E1471"
-            }
+                "vehicleRegistrationNumber": "HR55W5377"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "796185a6-dafd-4682-a70a-5660f67e203d",
-        "_score": 8.769739,
+        "_id": "8d916010-35db-41b8-b7cb-04a6615c1512",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "796185a6-dafd-4682-a70a-5660f67e203d",
+            "uuid": "8d916010-35db-41b8-b7cb-04a6615c1512",
             "vehicle": {
-                "vehicleRegistrationNumber": "OD04L6825"
-            }
+                "vehicleRegistrationNumber": "HR38AG1784"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "9991b4c3-2f10-44a3-b60a-ecced1b3e28e",
-        "_score": 8.769739,
+        "_id": "e95c9a64-80c7-42d8-9ad3-6b1456976447",
+        "_score": 8.308471,
         "_source": {
-            "uuid": "9991b4c3-2f10-44a3-b60a-ecced1b3e28e",
+            "uuid": "e95c9a64-80c7-42d8-9ad3-6b1456976447",
             "vehicle": {
-                "vehicleRegistrationNumber": "HR38X3685"
-            }
+                "vehicleRegistrationNumber": "HR38W9666"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "8fc8aee4-5d6b-4ad6-8ea5-0c92123c56a5",
-        "_score": 8.769739,
+        "_id": "b99b7b83-4a33-4303-ade9-584bb4df5ea5",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "8fc8aee4-5d6b-4ad6-8ea5-0c92123c56a5",
+            "uuid": "b99b7b83-4a33-4303-ade9-584bb4df5ea5",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01AB3976"
-            }
+                "vehicleRegistrationNumber": "HR55M3475"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "ae807f68-79ef-433b-b47c-047be249c944",
-        "_score": 8.769739,
+        "_id": "dd6c0666-4d1f-4492-a559-21b83f019388",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "ae807f68-79ef-433b-b47c-047be249c944",
+            "uuid": "dd6c0666-4d1f-4492-a559-21b83f019388",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB11E7586"
-            }
+                "vehicleRegistrationNumber": "UP71AT5483"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "d8f09b51-a923-41a2-b78d-1aed5e0fcef8",
-        "_score": 8.769739,
+        "_id": "d8006778-ce77-4cee-a6bd-1fd5a84b8ee3",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "d8f09b51-a923-41a2-b78d-1aed5e0fcef8",
+            "uuid": "d8006778-ce77-4cee-a6bd-1fd5a84b8ee3",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB76A2256"
-            }
+                "vehicleRegistrationNumber": "HR55V9841"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "f116b31a-caa2-4b36-b690-639c5ca9ca4d",
-        "_score": 8.769739,
+        "_id": "bf128ae9-3485-47bd-ab21-befddecebe2d",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "f116b31a-caa2-4b36-b690-639c5ca9ca4d",
+            "uuid": "bf128ae9-3485-47bd-ab21-befddecebe2d",
             "vehicle": {
-                "vehicleRegistrationNumber": "JH05DN4029"
-            }
+                "vehicleRegistrationNumber": "HR38AH7030"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "691596a7-4a0b-47ec-a439-9bbaf2476d9f",
-        "_score": 8.769739,
+        "_id": "c80255dc-9878-4954-84bf-f25d1dca5c09",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "691596a7-4a0b-47ec-a439-9bbaf2476d9f",
+            "uuid": "c80255dc-9878-4954-84bf-f25d1dca5c09",
             "vehicle": {
-                "vehicleRegistrationNumber": "NL01K1185"
-            }
+                "vehicleRegistrationNumber": "HR38AB0930"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "a9b0f421-fb9f-4fd2-9f05-85f302ab1a6b",
-        "_score": 8.769739,
+        "_id": "61f22e66-3a85-4c97-8816-ec295df4db2f",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "a9b0f421-fb9f-4fd2-9f05-85f302ab1a6b",
+            "uuid": "61f22e66-3a85-4c97-8816-ec295df4db2f",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB37E6125"
-            }
+                "vehicleRegistrationNumber": "HR38AG0696"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "14001b1e-5c4d-4233-928c-f134778e2c3a",
-        "_score": 8.769739,
+        "_id": "71ad20b9-cbf8-4324-8f10-988c7eb67041",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "14001b1e-5c4d-4233-928c-f134778e2c3a",
+            "uuid": "71ad20b9-cbf8-4324-8f10-988c7eb67041",
             "vehicle": {
-                "vehicleRegistrationNumber": "OD04L6830"
-            }
+                "vehicleRegistrationNumber": "HR38AB3761"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "d0601fde-e4af-47fd-a002-10282cf9df31",
-        "_score": 8.769739,
+        "_id": "006fca4f-b784-4cdc-957c-d45d069a2f1b",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "d0601fde-e4af-47fd-a002-10282cf9df31",
+            "uuid": "006fca4f-b784-4cdc-957c-d45d069a2f1b",
             "vehicle": {
-                "vehicleRegistrationNumber": "OR01P0841"
-            }
+                "vehicleRegistrationNumber": "PB13BT8429"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "3c3c9dc8-36bc-4248-b93a-9d8e461d6eee",
-        "_score": 8.769739,
+        "_id": "1a07df66-8b42-4b1e-b950-45c4cee8b927",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "3c3c9dc8-36bc-4248-b93a-9d8e461d6eee",
+            "uuid": "1a07df66-8b42-4b1e-b950-45c4cee8b927",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB76A7529"
-            }
+                "vehicleRegistrationNumber": "HR58B6480"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "15f515ab-b403-44d8-a863-f8aeafe60eb1",
-        "_score": 8.769739,
+        "_id": "3e9a7ff9-8c7e-4200-9ce0-facfc0aa3661",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "15f515ab-b403-44d8-a863-f8aeafe60eb1",
+            "uuid": "3e9a7ff9-8c7e-4200-9ce0-facfc0aa3661",
             "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-7"
-            }
+                "vehicleRegistrationNumber": "HR38U2938"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "193b93b8-5af4-4f96-af8b-7cfbcc00e0a5",
-        "_score": 8.769739,
+        "_id": "1796cac5-7420-4996-92b2-683d684070d3",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "193b93b8-5af4-4f96-af8b-7cfbcc00e0a5",
+            "uuid": "1796cac5-7420-4996-92b2-683d684070d3",
             "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-3"
-            }
+                "vehicleRegistrationNumber": "UP64AT0085"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "bef21b80-7b2f-4247-bcc4-f4548cdec52d",
-        "_score": 8.769739,
+        "_id": "586f637e-ff6d-4f4c-bd4e-d0da00389665",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "bef21b80-7b2f-4247-bcc4-f4548cdec52d",
+            "uuid": "586f637e-ff6d-4f4c-bd4e-d0da00389665",
             "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-9"
-            }
+                "vehicleRegistrationNumber": "HR38AH1774"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "dc70bda0-a5e0-4f96-af04-648720e60902",
-        "_score": 8.769739,
+        "_id": "91f95ea8-7e7c-4fe0-ab22-a5ea6a8a8026",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "dc70bda0-a5e0-4f96-af04-648720e60902",
+            "uuid": "91f95ea8-7e7c-4fe0-ab22-a5ea6a8a8026",
             "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-2"
-            }
+                "vehicleRegistrationNumber": "HR38U3090"
+            },
+            "status": "ACTIVE"
         }
     },
     {
         "_index": "partner_fleet",
         "_type": "kafka-connect",
-        "_id": "f9ae5b6c-cc8a-4f83-9952-0131afeed4ef",
-        "_score": 8.769739,
+        "_id": "ecde8f24-d3b4-49ee-97ba-831f5db9d6a5",
+        "_score": 7.9726415,
         "_source": {
-            "uuid": "f9ae5b6c-cc8a-4f83-9952-0131afeed4ef",
+            "uuid": "ecde8f24-d3b4-49ee-97ba-831f5db9d6a5",
             "vehicle": {
-                "vehicleRegistrationNumber": "WB33E2721"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "19dd75bf-4f6a-4ae6-93de-5785fa32f467",
-        "_score": 8.769739,
-        "_source": {
-            "uuid": "19dd75bf-4f6a-4ae6-93de-5785fa32f467",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB33F2721"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "ed19678c-356f-414c-8633-0ab72c6d868f",
-        "_score": 8.769739,
-        "_source": {
-            "uuid": "ed19678c-356f-414c-8633-0ab72c6d868f",
-            "vehicle": {
-                "vehicleRegistrationNumber": "HR38W0398"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "e4ef8457-5a49-4b51-bf5c-d0c2f6b0f2cc",
-        "_score": 8.769739,
-        "_source": {
-            "uuid": "e4ef8457-5a49-4b51-bf5c-d0c2f6b0f2cc",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL02Q8870"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "09c3cef6-f49d-40a7-a7e6-e2de58632c2c",
-        "_score": 8.769739,
-        "_source": {
-            "uuid": "09c3cef6-f49d-40a7-a7e6-e2de58632c2c",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB11B7651"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "72994ffb-4c16-44f2-a6a4-8bab7501697a",
-        "_score": 8.769739,
-        "_source": {
-            "uuid": "72994ffb-4c16-44f2-a6a4-8bab7501697a",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01AB4592"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "ead85292-95ea-4c02-819a-ac3646f975d7",
-        "_score": 8.769739,
-        "_source": {
-            "uuid": "ead85292-95ea-4c02-819a-ac3646f975d7",
-            "vehicle": {
-                "vehicleRegistrationNumber": "OD04L6823"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "90fde56e-17e9-48f1-b347-f1db32443237",
-        "_score": 8.769739,
-        "_source": {
-            "uuid": "90fde56e-17e9-48f1-b347-f1db32443237",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL02K1789"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "310c984d-166c-48f6-937e-b3caf8c7bd29",
-        "_score": 8.769739,
-        "_source": {
-            "uuid": "310c984d-166c-48f6-937e-b3caf8c7bd29",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB29A5175"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "847d7842-565c-4432-8419-481d60a47442",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "847d7842-565c-4432-8419-481d60a47442",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01Q0940"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "8c17f96e-ad31-42a3-bc85-58ed01cbd817",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "8c17f96e-ad31-42a3-bc85-58ed01cbd817",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01AC0040"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "9d547f8a-f8b1-4431-a6d6-0c6644186a26",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "9d547f8a-f8b1-4431-a6d6-0c6644186a26",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB916609"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "b6e999c0-4109-4cce-b66d-bb2ed8e2075d",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "b6e999c0-4109-4cce-b66d-bb2ed8e2075d",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01A2836"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "3331c225-e2b6-4c0b-9596-0260996fe0c8",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "3331c225-e2b6-4c0b-9596-0260996fe0c8",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01AJ1158"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "35e0f79f-1961-4bee-b94c-cdc5142f6054",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "35e0f79f-1961-4bee-b94c-cdc5142f6054",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01AH8628"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "645f39c5-a700-43f8-87f3-6eaf39b86fd8",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "645f39c5-a700-43f8-87f3-6eaf39b86fd8",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL02Q8950"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "0ac9ca62-9e3a-4382-815b-01fc282afb71",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "0ac9ca62-9e3a-4382-815b-01fc282afb71",
-            "vehicle": {
-                "vehicleRegistrationNumber": "JH05CX3168"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "cbed4e78-3a12-4ad1-8644-972cd8b645c8",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "cbed4e78-3a12-4ad1-8644-972cd8b645c8",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB11F0762"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "3441c486-71f3-4fbf-a81f-be96a3f73b4e",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "3441c486-71f3-4fbf-a81f-be96a3f73b4e",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB355602"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "4ee1f6c0-e2a9-4afd-bf60-950c2d7b887e",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "4ee1f6c0-e2a9-4afd-bf60-950c2d7b887e",
-            "vehicle": {
-                "vehicleRegistrationNumber": "TS12UC0737"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "6aaa3f94-f2f1-422e-9ee1-35a6018b6f99",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "6aaa3f94-f2f1-422e-9ee1-35a6018b6f99",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01G2776"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "44b16301-728e-4cc8-810a-42a3cb57b3ce",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "44b16301-728e-4cc8-810a-42a3cb57b3ce",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB37E6106"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "a480dbad-47d0-4c5b-b168-7ec6fba15a71",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "a480dbad-47d0-4c5b-b168-7ec6fba15a71",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB917819"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "a95a2a8c-3323-4ce6-858f-635a57c50c52",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "a95a2a8c-3323-4ce6-858f-635a57c50c52",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01G6886"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "fc906b44-a8d0-4898-9d3c-7855c89b9ab4",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "fc906b44-a8d0-4898-9d3c-7855c89b9ab4",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB76B1552"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "7c5be760-7648-4010-b957-a5e44ae985df",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "7c5be760-7648-4010-b957-a5e44ae985df",
-            "vehicle": {
-                "vehicleRegistrationNumber": "HR38X5523"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "f9d20fe0-4b9c-46f7-9132-d18ce2ed86a3",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "f9d20fe0-4b9c-46f7-9132-d18ce2ed86a3",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB37E6127"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "1237bbdd-eadd-4d53-aa5b-5f7f92b68701",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "1237bbdd-eadd-4d53-aa5b-5f7f92b68701",
-            "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-5"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "b0be969e-c60c-4738-b864-61afc6c4ed65",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "b0be969e-c60c-4738-b864-61afc6c4ed65",
-            "vehicle": {
-                "vehicleRegistrationNumber": "RDS NO-8"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "ed536ec2-e94d-46a2-b369-fb71ccc3a510",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "ed536ec2-e94d-46a2-b369-fb71ccc3a510",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01K0784"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "03c5add1-605a-49a3-ad18-6ca4bc3217aa",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "03c5add1-605a-49a3-ad18-6ca4bc3217aa",
-            "vehicle": {
-                "vehicleRegistrationNumber": "HR38X0619"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "295fd1c0-9c89-4edf-b55d-94c560e36a57",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "295fd1c0-9c89-4edf-b55d-94c560e36a57",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01G8353"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "37fbd700-a96c-458e-959e-c0ad71a5ab83",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "37fbd700-a96c-458e-959e-c0ad71a5ab83",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01AB1374"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "07de42c4-b719-4d9b-999d-c2f9c36225b8",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "07de42c4-b719-4d9b-999d-c2f9c36225b8",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01G6823"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "abb7046a-bec5-4336-b152-76fcbcfacd62",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "abb7046a-bec5-4336-b152-76fcbcfacd62",
-            "vehicle": {
-                "vehicleRegistrationNumber": "CG13X1196"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "2c945146-c87f-4952-ae95-34c6519b66d9",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "2c945146-c87f-4952-ae95-34c6519b66d9",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01D6786"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "fcf590b7-951c-4eb3-9bbd-a91b0f11bc23",
-        "_score": 8.686772,
-        "_source": {
-            "uuid": "fcf590b7-951c-4eb3-9bbd-a91b0f11bc23",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB59B7101"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "0e56a27b-c1ba-4ad1-85a5-08a9d5b05d92",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "0e56a27b-c1ba-4ad1-85a5-08a9d5b05d92",
-            "vehicle": {
-                "vehicleRegistrationNumber": "TS12UB1449"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "1d008fca-3c88-48e8-ac8f-f7f752331fb7",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "1d008fca-3c88-48e8-ac8f-f7f752331fb7",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01Q0938"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "31ef7c1b-dae9-4eea-85c6-c861541e9e3c",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "31ef7c1b-dae9-4eea-85c6-c861541e9e3c",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01AC0035"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "def6eafd-e0b5-455b-a435-a2cd0a31a585",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "def6eafd-e0b5-455b-a435-a2cd0a31a585",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB41E8534"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "e9ec342d-d066-40e2-9bde-9dfc2aac0c71",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "e9ec342d-d066-40e2-9bde-9dfc2aac0c71",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB350799"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "048bc0ac-3809-42cf-8c78-31db8f91e6cb",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "048bc0ac-3809-42cf-8c78-31db8f91e6cb",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB33B7010"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "702adacb-0b2a-4da2-8e8a-730803734ddd",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "702adacb-0b2a-4da2-8e8a-730803734ddd",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB11F0962"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "80420cd2-e566-462c-852b-ac939d213a70",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "80420cd2-e566-462c-852b-ac939d213a70",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB76A2255"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "95bfdf1d-6bb7-43bb-9f0c-0128a48477cd",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "95bfdf1d-6bb7-43bb-9f0c-0128a48477cd",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL02Q7971"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "a3b3a0e8-6d29-4bdd-a019-197c59828503",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "a3b3a0e8-6d29-4bdd-a019-197c59828503",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01AD6357"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "df34f9b9-08f8-4dd6-8593-b1cc339e0c0c",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "df34f9b9-08f8-4dd6-8593-b1cc339e0c0c",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01K4503"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "43a9e54e-8a33-4122-b06b-46178fe7ff34",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "43a9e54e-8a33-4122-b06b-46178fe7ff34",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB65D7088"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "75da3bfe-5509-41d9-9632-708982170758",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "75da3bfe-5509-41d9-9632-708982170758",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01K5325"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "840e1e2a-3b0e-49bc-a3d6-1e886e6d08f2",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "840e1e2a-3b0e-49bc-a3d6-1e886e6d08f2",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB76B1703"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "93a5f4f0-56ff-4a3e-b977-01a52d82f9e0",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "93a5f4f0-56ff-4a3e-b977-01a52d82f9e0",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL02Q9147"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "e26f20d9-21c3-460e-8bf4-1e5bdd6f5625",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "e26f20d9-21c3-460e-8bf4-1e5bdd6f5625",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB33H3051"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "2610c1bf-59f0-406c-9b25-3905b1fc4056",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "2610c1bf-59f0-406c-9b25-3905b1fc4056",
-            "vehicle": {
-                "vehicleRegistrationNumber": "OD04L6827"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "9d2669fb-f6bc-43b9-8b67-38528417cc01",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "9d2669fb-f6bc-43b9-8b67-38528417cc01",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01K0315"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "a6f8570f-c685-4e48-9357-85a2fd8b3c5c",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "a6f8570f-c685-4e48-9357-85a2fd8b3c5c",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01AB2424"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "56ca2dbb-aa97-4553-a805-b5edb5b1d6ca",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "56ca2dbb-aa97-4553-a805-b5edb5b1d6ca",
-            "vehicle": {
-                "vehicleRegistrationNumber": "HR38X3336"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "55b39dcb-9dd5-4c09-b0cb-89b3c576ea1e",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "55b39dcb-9dd5-4c09-b0cb-89b3c576ea1e",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01K4505"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "31a307c2-b1c5-4fc4-969a-38886033e366",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "31a307c2-b1c5-4fc4-969a-38886033e366",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB37E6121"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "d3a9b82c-3056-45e6-b811-17bdf76ebe11",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "d3a9b82c-3056-45e6-b811-17bdf76ebe11",
-            "vehicle": {
-                "vehicleRegistrationNumber": "JH05DN0452"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "d454ffcf-44ae-49b2-af1a-f095a8022dd3",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "d454ffcf-44ae-49b2-af1a-f095a8022dd3",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01K1491"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "227598cc-72f2-4368-b3e0-35cde12f87be",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "227598cc-72f2-4368-b3e0-35cde12f87be",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01G3625"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "e9fe687e-34ef-4a34-87bc-30a33ab0915e",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "e9fe687e-34ef-4a34-87bc-30a33ab0915e",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB11B9036"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "a2c4601a-857f-4e93-ad03-c9b965f716ac",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "a2c4601a-857f-4e93-ad03-c9b965f716ac",
-            "vehicle": {
-                "vehicleRegistrationNumber": "JH02BM8472"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "a73ccb6f-548b-475b-baac-3d481f13be13",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "a73ccb6f-548b-475b-baac-3d481f13be13",
-            "vehicle": {
-                "vehicleRegistrationNumber": "WB51C7207"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "100f1e62-efb0-42d9-925a-4543f7282bd9",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "100f1e62-efb0-42d9-925a-4543f7282bd9",
-            "vehicle": {
-                "vehicleRegistrationNumber": "JH05BN3505"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "bf9b8d99-62be-4717-afdf-bcbfdd166337",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "bf9b8d99-62be-4717-afdf-bcbfdd166337",
-            "vehicle": {
-                "vehicleRegistrationNumber": "JH05DN3505"
-            }
-        }
-    },
-    {
-        "_index": "partner_fleet",
-        "_type": "kafka-connect",
-        "_id": "34b98921-eb99-4b1d-bef4-916ecf7bdcd2",
-        "_score": 8.621449,
-        "_source": {
-            "uuid": "34b98921-eb99-4b1d-bef4-916ecf7bdcd2",
-            "vehicle": {
-                "vehicleRegistrationNumber": "NL01G6786"
-            }
+                "vehicleRegistrationNumber": "HR38Z1581"
+            },
+            "status": "ACTIVE"
         }
     }
 ]
@@ -1833,15 +975,12 @@ async function getVerifiedVehicle(vehicleNumber) {
 }
 
 async function main() {
-    for (const vehicleCode of vehicleCodes) {
-        const vehicleDetails = await getVerifiedVehicle(vehicleCode);
+    for (const vehicle of vehicleData) {
+        const vehicleNumber = vehicle._source.vehicle.vehicleRegistrationNumber;
+        const vehicleDetails = await getVerifiedVehicle(vehicleNumber);
+        
         if (vehicleDetails) {
-            const matchingResource = resourceIds.find(resource =>
-                resource._source.vehicle.vehicleRegistrationNumber === vehicleCode
-            );
-            if (matchingResource) {
-                await addDocsToVehicle(vehicleDetails, matchingResource._source.uuid, vehicleCode);
-            }
+            await addDocsToVehicle(vehicleDetails, vehicle._source.uuid, vehicleNumber);
         }
     }
 }
