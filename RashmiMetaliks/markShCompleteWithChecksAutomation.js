@@ -53,46 +53,62 @@ async function markShipmentComplete(shId, stageId, token) {
     }
 }
 
-
-async function main() {
-    if (sh.shipmentTrackingStatus == "Departed From Delivery Point") {
-        let hasInternalMovement = false
-        let hasLoadedTrip = false
+function isInternalMovementLoadedTrip(customFields) {
+    if (!customFields?.length) return false
+    
+    let hasInternalMovement = false
+    let hasLoadedTrip = false
+    
+    for (let cf of customFields) {
+        if (!cf.indexedValue?.length) continue
+        const value = cf.indexedValue[0]
         
-        if (sh.customFields && Array.isArray(sh.customFields)) {
-            for (let cf of sh.customFields) {
-                if (cf.indexedValue && Array.isArray(cf.indexedValue)) {
-                    if (cf.indexedValue[0] === "Trip Type_Internal Movement") {
-                        hasInternalMovement = true
-                    }
-                    if (cf.indexedValue[0] === "Trip Load_loaded") {
-                        hasLoadedTrip = true
-                    }
-                }
-            }
-        }
-        if (hasInternalMovement && hasLoadedTrip) {
-            let podStatus = false
-            for (let cn of sh.consignments) {
-                let pod = await ensurePod(cn.uuid, token)
-                if (pod.status == "SUBMITTED") {
-                    podStatus = true
-                } else {
-                    podStatus = false
-                }
-            }
-            if (podStatus) {
-                let stageId = null
-                for (let stage of sh.shipmentStages) {
-                    if (stage.tripPoint && stage.tripPoint.purpose === "Delivery") {
-                        stageId = stage.uuid
-                        break
-                    }
-                }
-                await markShipmentComplete(sh.uuid, stageId, token)
-            }
+        if (value === "Trip Type_Internal Movement") hasInternalMovement = true
+        if (value === "Trip Load_loaded") hasLoadedTrip = true
+    }
+    
+    return hasInternalMovement && hasLoadedTrip
+}
+
+async function areAllPodsSubmitted(consignments, token) {
+    for (let cn of consignments) {
+        const pod = await ensurePod(cn.uuid, token)
+        if (pod.status !== "SUBMITTED") return false
+    }
+    return true
+}
+
+function getDeliveryStageId(stages) {
+    for (let stage of stages) {
+        if (stage.tripPoint?.purpose === "Delivery") {
+            return stage.uuid
         }
     }
+    return null
+}
+
+async function main() {
+    if (sh.shipmentTrackingStatus !== "Departed From Delivery Point") {
+        console.log(`Shipment's Status is ${sh.shipmentTrackingStatus}`)
+        return null
+    }
+
+    if (!isInternalMovementLoadedTrip(sh.customFields)) {
+        console.log(`Shipment's custom fields are not valid`)
+        return null
+    }
+
+    if (!await areAllPodsSubmitted(sh.consignments, token)) {
+        console.log(`Not all pods are submitted`)
+        return null
+    }
+
+    const stageId = getDeliveryStageId(sh.shipmentStages)
+    if (stageId) {
+        console.log(`Marking shipment complete`)
+        return await markShipmentComplete(sh.uuid, stageId, token)
+    }
+
     return null
 }
 
