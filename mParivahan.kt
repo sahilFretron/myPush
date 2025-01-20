@@ -128,14 +128,14 @@ class VehicleDocVerificationPariVahanSvc @Inject constructor(
     }
 
     fun Document.updateCfFieldsIfNeeded(serverDoc: Document){
-        val keysToLookFor = docTypeWiseFields.getOrDefault(this.getName(), mutableListOf())
+        val keysToLookFor = DOCTYPEWISEFIELDS.getOrDefault(this.getName(), mutableListOf())
         val toAddCfs = serverDoc.getCustomFields()?.filter { keysToLookFor.contains(it.getFieldKey())}?.toList() ?: listOf()
         this.getCustomFields()?.filter { toAddCfs.map { it.getFieldKey() }.contains(it.getFieldKey()).not() }?.toMutableList()?.addAll(toAddCfs)
     }
 
     fun  Document.updateExpiryIfNeeded(){
         val oldExpiry = this.getExpireDate()
-        val newExpiry = this.getCustomFields()?.find { it.getFieldKey() == docTypeWiseExpiry.getOrDefault(this.getName(),"X") }?.getValue()?.toLongOrNull()
+        val newExpiry = this.getCustomFields()?.find { it.getFieldKey() == DOCTYPEWISEEXPIRY.getOrDefault(this.getName(),"X") }?.getValue()?.toLongOrNull()
         if(newExpiry!=null){
             if((oldExpiry ?: 0L ) < newExpiry){
                 this.setExpireDate(newExpiry)
@@ -149,7 +149,7 @@ class VehicleDocVerificationPariVahanSvc @Inject constructor(
     private fun maxDocsFromMPariVahanData(vehicleData: VerifiedVehicle, resourceId: String): HashMap<String, Document> {
         val map = hashMapOf<String, Document>()
 
-        val allDocs = docTypeWiseFields.keys
+        val allDocs = DOCTYPEWISEFIELDS.keys
         for(docName in allDocs){
             val cfs = mutableListOf<LiteCustomFields>()
             val expiryFieldName = when (docName){
@@ -163,58 +163,25 @@ class VehicleDocVerificationPariVahanSvc @Inject constructor(
                     cfs.addIfNotNull(mapStringValueToLiteCf(INSURANCE_EXPIRY_DATE,vehicleData.insuranceExpiryDate.toString(), "date" ))
                     INSURANCE_EXPIRY_DATE
                 }
-                else->{
-                    "X"
+                VEHICLE_PERMIT->{
+                    cfs.addIfNotNull(mapStringValueToLiteCf(PERMIT_NO,vehicleData.permitNumber))
+                    cfs.addIfNotNull(mapStringValueToLiteCf(PERMIT_EXPIRY_DATE,vehicleData.permitValidUpto.toString(), "date" ))
+                    PERMIT_EXPIRY_DATE
                 }
+                VEHICLE_POLLUTION->{
+                    cfs.addIfNotNull(mapStringValueToLiteCf(POLLUTION_NO,vehicleData.pollutionNumber))
+                    cfs.addIfNotNull(mapStringValueToLiteCf(POLLUTION_EXPIRY_DATE,vehicleData.pollutionExpiryDate.toString(), "date" ))
+                    POLLUTION_EXPIRY_DATE
+                }
+                VEHICLE_ALL_INDIA_PERMIT->{
+                    cfs.addIfNotNull(mapStringValueToLiteCf(ALL_INDIA_PERMIT_NO,vehicleData.nationalPermitNumber))
+                    cfs.addIfNotNull(mapStringValueToLiteCf(ALL_INDIA_PERMIT_EXPIRY_DATE,vehicleData.nationalPermitValidUpto.toString(), "date" ))
+                    ALL_INDIA_PERMIT_EXPIRY_DATE
+                }
+                else-> null
             }
             mapToDocumentObject(resourceId, docName ,cfs , cfs.find { it.getFieldKey() == expiryFieldName }?.getValue()?.toLongOrNull())
         }
-
-        if (vehicleData.rcNumber != null || vehicleData.rcExpiryDate != null) {
-            val cfs = mutableListOf<LiteCustomFields>()
-            cfs.addIfNotNull(mapStringValueToLiteCf(RC_ID,vehicleData.rcNumber))
-            cfs.addIfNotNull(mapStringValueToLiteCf(RC_EXPIRY_DATE,vehicleData.rcExpiryDate.toString(), "date" ))
-
-            val doc = mapToDocumentObject(resourceId, VEHICLE_RC ,cfs, vehicleData.rcExpiryDate)
-            map[VEHICLE_RC] = doc
-        }
-
-        if (vehicleData.insuranceNumber  != null || vehicleData.insuranceExpiryDate  != null) {
-            val cfs = mutableListOf<LiteCustomFields>()
-            cfs.addIfNotNull(mapStringValueToLiteCf(INSURANCE_NO,vehicleData.insuranceNumber))
-            cfs.addIfNotNull(mapStringValueToLiteCf(INSURANCE_EXPIRY_DATE,vehicleData.insuranceExpiryDate.toString(), "date" ))
-
-            val doc = mapToDocumentObject(resourceId, VEHICLE_INSURANCE ,cfs, vehicleData.insuranceExpiryDate)
-            map[VEHICLE_INSURANCE] = doc
-        }
-
-        if (vehicleData.pollutionNumber  != null || vehicleData.pollutionExpiryDate  != null) {
-            val cfs = mutableListOf<LiteCustomFields>()
-            cfs.addIfNotNull(mapStringValueToLiteCf(POLLUTION_NO,vehicleData.pollutionNumber))
-            cfs.addIfNotNull(mapStringValueToLiteCf(POLLUTION_EXPIRY_DATE,vehicleData.pollutionExpiryDate.toString(), "date" ))
-
-            val doc = mapToDocumentObject(resourceId, VEHICLE_POLLUTION ,cfs, vehicleData.pollutionExpiryDate)
-            map[VEHICLE_POLLUTION] = doc
-        }
-
-        if (vehicleData.permitNumber  != null || vehicleData.permitValidUpto  != null) {
-            val cfs = mutableListOf<LiteCustomFields>()
-            cfs.addIfNotNull(mapStringValueToLiteCf(PERMIT_NO,vehicleData.permitNumber))
-            cfs.addIfNotNull(mapStringValueToLiteCf(PERMIT_EXPIRY_DATE,vehicleData.permitValidUpto.toString(), "date" ))
-
-            val doc = mapToDocumentObject(resourceId, VEHICLE_PERMIT ,cfs, vehicleData.permitValidUpto)
-            map[VEHICLE_PERMIT] = doc
-        }
-
-        if (vehicleData.nationalPermitNumber  != null || vehicleData.nationalPermitValidUpto  != null) {
-            val cfs = mutableListOf<LiteCustomFields>()
-            cfs.addIfNotNull(mapStringValueToLiteCf(ALL_INDIA_PERMIT_NO,vehicleData.nationalPermitNumber))
-            cfs.addIfNotNull(mapStringValueToLiteCf(ALL_INDIA_PERMIT_EXPIRY_DATE,vehicleData.nationalPermitValidUpto.toString(), "date" ))
-
-            val doc = mapToDocumentObject(resourceId, VEHICLE_ALL_INDIA_PERMIT ,cfs, vehicleData.nationalPermitValidUpto)
-            map[VEHICLE_ALL_INDIA_PERMIT] = doc
-        }
-
         return map
     }
 
@@ -272,8 +239,9 @@ class VehicleDocVerificationPariVahanSvc @Inject constructor(
         const val ALL_INDIA_PERMIT_EXPIRY_DATE = "All India Permit Expiry Date"
         val FLEET_VEHICLE_EXPIRY_DATE_KEYS = mutableListOf(RC_EXPIRY_DATE, POLLUTION_EXPIRY_DATE, INSURANCE_EXPIRY_DATE, ALL_INDIA_PERMIT_EXPIRY_DATE, PERMIT_EXPIRY_DATE)
         val FLEET_VEHICLE_ID_KEYS = mutableListOf(RC_ID, INSURANCE_NO, POLLUTION_NO, PERMIT_NO, ALL_INDIA_PERMIT_NO)
-        val docTypeWiseFields = hashMapOf(VEHICLE_RC to mutableListOf(RC_ID, RC_EXPIRY_DATE), VEHICLE_INSURANCE to mutableListOf(
-            INSURANCE_NO, INSURANCE_EXPIRY_DATE))
-        val docTypeWiseExpiry = hashMapOf( VEHICLE_RC to RC_EXPIRY_DATE , VEHICLE_POLLUTION to POLLUTION_EXPIRY_DATE)
+        val DOCTYPEWISEFIELDS = hashMapOf(VEHICLE_RC to mutableListOf(RC_ID, RC_EXPIRY_DATE), VEHICLE_INSURANCE to mutableListOf(
+            INSURANCE_NO, INSURANCE_EXPIRY_DATE), VEHICLE_POLLUTION to mutableListOf(POLLUTION_NO, POLLUTION_EXPIRY_DATE), VEHICLE_PERMIT to mutableListOf(
+            PERMIT_NO, PERMIT_EXPIRY_DATE), VEHICLE_ALL_INDIA_PERMIT to mutableListOf(ALL_INDIA_PERMIT_NO, ALL_INDIA_PERMIT_EXPIRY_DATE))
+        val DOCTYPEWISEEXPIRY = hashMapOf( VEHICLE_RC to RC_EXPIRY_DATE , VEHICLE_POLLUTION to POLLUTION_EXPIRY_DATE, VEHICLE_INSURANCE to INSURANCE_EXPIRY_DATE, VEHICLE_PERMIT to PERMIT_EXPIRY_DATE, VEHICLE_ALL_INDIA_PERMIT to ALL_INDIA_PERMIT_EXPIRY_DATE)
     }
 }
