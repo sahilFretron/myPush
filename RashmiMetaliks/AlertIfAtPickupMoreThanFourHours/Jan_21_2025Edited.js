@@ -12,6 +12,7 @@ const query = {
         "shipmentTrackingStatus",
         "customFields.fieldKey",
         "customFields.value",
+        "customFields.indexedValue",
         "shipmentStages.arrivalTime",
         "shipmentStages.place.name",
         "shipmentStages.hub.name",
@@ -361,8 +362,11 @@ async function main() {
         const status = shipment?.shipmentTrackingStatus;
         const index = status === "At Pickup Point" ? 0 : 1;
         const arrivalTime = shipment?.shipmentStages?.[index]?.arrivalTime;
-        const actualActivityEndTime = shipment?.shipmentStages?.[index]?.actualActivityEndTime;
-        if(!actualActivityEndTime && index === 1) return false;
+        const isLoaded = shipment?.customFields?.some(field => field?.indexedValue === "Trip Load_loaded");
+        if (!isLoaded && index === 1) {
+            const actualActivityEndTime = shipment?.shipmentStages?.[index]?.actualActivityEndTime;
+            if (actualActivityEndTime) return false; // if delivery is not unloaded, then don't alert
+        }
         if (!arrivalTime) return false;
 
         const timeDifference = currentTime - arrivalTime;
