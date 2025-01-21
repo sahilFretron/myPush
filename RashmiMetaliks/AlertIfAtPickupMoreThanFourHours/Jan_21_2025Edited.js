@@ -365,7 +365,7 @@ async function main() {
         const isLoaded = shipment?.customFields?.some(field => field?.indexedValue === "Trip Load_loaded");
         if (!isLoaded && index === 1) {
             const actualActivityEndTime = shipment?.shipmentStages?.[index]?.actualActivityEndTime;
-            if (actualActivityEndTime) return false; // if delivery is not unloaded, then don't alert
+            if (actualActivityEndTime) return false; // if delivery is unloaded, then don't alert
         }
         if (!arrivalTime) return false;
 
