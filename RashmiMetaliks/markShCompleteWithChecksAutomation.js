@@ -19,7 +19,7 @@ async function ensurePod(cnId, token) {
         }
     } catch (e) {
         console.log(`Catched error in getting pod object: ${e.message}`)
-        throw e
+        return null
     }
 }
 
@@ -50,6 +50,7 @@ async function markShipmentComplete(shId, stageId, token) {
         return res
     } catch (e) {
         console.log(`Error in marking shipment complete: ${e.message}`)
+        return null
     }
 }
 
