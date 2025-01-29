@@ -2,6 +2,7 @@ const orderIndex = "salesorders_v2";
 const finalFuIndex = "freightunits_v1";
 const orgId = "a9b21334-af4b-4e6c-87ae-859a2b1237be";
 const FRT_PUB_BASE_URL = "https://apis.fretron.com";
+exports.FRT_PUB_BASE_URL = FRT_PUB_BASE_URL;
 const TOKEN = "eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzQ0MzI4NjksInVzZXJJZCI6Ijg2ZWM4MDUwLTc3NzYtNGQ4Ny1hOGI0LTNmYTliM2ExNTIzNyIsImVtYWlsIjoic2hpdmFtLmt1bWFyQGZyZXRyb24uY29tIiwibW9iaWxlTnVtYmVyIjoiNzAxODUxMDE4MSIsIm9yZ0lkIjoiZWYzMDA2ODMtOTAxYi00Nzc0LWJmMGUtOTU1ZDQ5ZTc5NmJjIiwibmFtZSI6IlNoaXZhbSIsIm9yZ1R5cGUiOiJGTEVFVF9PV05FUiIsImlzR29kIjp0cnVlLCJwb3J0YWxUeXBlIjoiYmFzaWMifQ.ZYtCp1FedQE8t2egNCgm-wkG_dlNz98wLtdwJhaS_Us";
 const rp = require('request-promise');
 
