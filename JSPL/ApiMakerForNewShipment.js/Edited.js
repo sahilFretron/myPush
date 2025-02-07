@@ -85,67 +85,63 @@ async function main() {
             __version: 2,
         };
         let shs = await getShsByFilter(filters);
+        let shNos = shs.map((sh)=>sh.shipmentNumber)
 
         if (!shs?.length) {
             console.log(`completed shs not found in last one hour`);
             return null;
         }
 
-        console.log(`Total completed shs: ${shs.length}`);
+        // console.log(`Total completed shs: ${shs.length}`);
 
-        let uniqueVehicleWiseData = _.uniqBy(
-            shs,
-            (sh) => sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber
-        );
+        // let uniqueVehicleWiseData = _.uniqBy(
+        //     shs,
+        //     (sh) => sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber
+        // );
 
 
-        console.log(`Total unique shs: ${uniqueVehicleWiseData.length} ${uniqueVehicleWiseData.map((sh)=>sh.shipmentNumber)} `); ///shipment no console
+        // console.log(`Total unique shs: ${uniqueVehicleWiseData.length} ${uniqueVehicleWiseData.map((sh)=>sh.shipmentNumber)} `); ///shipment no console
 
-        let vehicleWiseData = {};
-        uniqueVehicleWiseData.forEach((sh) => {
-            let vehicleNo = sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber;
-            vehicleWiseData[vehicleNo] = {
-                shId: sh.uuid,
-                shipmentNo: sh?.shipmentNumber,
-            };
-        });
+        // let vehicleWiseData = {};
+        // uniqueVehicleWiseData.forEach((sh) => {
+        //     let vehicleNo = sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber;
+        //     vehicleWiseData[vehicleNo] = {
+        //         shId: sh.uuid,
+        //         shipmentNo: sh?.shipmentNumber,
+        //     };
+        // });
 
-        let vehicleNos = Object.keys(vehicleWiseData);
+        // let vehicleNos = Object.keys(vehicleWiseData);
 
-        let filter = {
-            __version: 2,
-            _not: {
-                _shipmentStatus_: {
-                    shipmentStatus: ["Completed"],
-                },
-            },
-            "fleetInfo.vehicle.vehicleRegistrationNumber": vehicleNos,
-        };
+        let filter = {"externalShipmentId.keyword":shNos,"__version":2}
         let activeShs = await getShsByFilter(filter);
+        let activeShNos = activeShs.map((sh)=>sh.externalShipmentId)
+        let notActiveShNos = _.difference(shNos,activeShNos)
+        console.log(`notActiveShNos ${notActiveShNos?.length} ${notActiveShNos.join(",")}`)
+        let shIdsForAutomationHit = notActiveShNos.map((shNo)=>shs.find((sh)=>sh.shipmentNumber===shNo).uuid)
+        // let activeShVehicleNos = activeShs.map(
+        //     (sh) => sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber
+        // );
 
-        let activeShVehicleNos = activeShs.map(
-            (sh) => sh?.fleetInfo?.vehicle?.vehicleRegistrationNumber
-        );
+        // let notActiveVehicles = _.difference(vehicleNos, activeShVehicleNos);
 
-        let notActiveVehicles = _.difference(vehicleNos, activeShVehicleNos);
+        // if (!notActiveVehicles?.length) {
+        //     console.log("All Ok ...");
+        //     return null;
+        // }
 
-        if (!notActiveVehicles?.length) {
-            console.log("All Ok ...");
-            return null;
-        }
+        // console.log(`notActiveVehicles ${notActiveVehicles?.length}`);
 
-        console.log(`notActiveVehicles ${notActiveVehicles?.length}`);
+        // let shIdsForAutomationHit = [];
 
-        let shIdsForAutomationHit = [];
-
-        for (let vehicleNo of notActiveVehicles) {
-            console.log(
-                `Hit Automation for shipment ${vehicleWiseData[vehicleNo].shipmentNo}`
-            );
-            if (vehicleWiseData[vehicleNo].shId) {
-                shIdsForAutomationHit.push(vehicleWiseData[vehicleNo].shId);
-            }
-        }
+        // for (let vehicleNo of notActiveVehicles) {
+        //     console.log(
+        //         `Hit Automation for shipment ${vehicleWiseData[vehicleNo].shipmentNo}`
+        //     );
+        //     if (vehicleWiseData[vehicleNo].shId) {
+        //         shIdsForAutomationHit.push(vehicleWiseData[vehicleNo].shId);
+        //     }
+        // }
 
         if (shIdsForAutomationHit?.length) {
             console.log(

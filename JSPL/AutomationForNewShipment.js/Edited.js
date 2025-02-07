@@ -9,6 +9,7 @@
     
     const RAILWAY_SLIDING = "RAILWAY SIDING";
     const MILIS_LOC_NAME = "Millis Loc -A";
+    const ORG_ID = "0126f405-dd36-4c52-9d21-4c095fc2e2d0";
     
     const RAILWAY_SLIDING_STAGE = {
         departureTime: null,
@@ -45,7 +46,7 @@
                 boundary: null,
                 address: "Ranchi Patratu Ramgarh Rd, Patratu, Jharkhand 829143, India",
                 accessibility: "private",
-                addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+                addedBy: ORG_ID,
                 center: {
                     latitude: 23.636717,
                     longitude: 85.321588,
@@ -101,7 +102,7 @@
             boundary: null,
             address: "Ranchi Patratu Ramgarh Rd, Patratu, Jharkhand 829143, India",
             accessibility: "private",
-            addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+            addedBy: ORG_ID,
             center: {
                 latitude: 23.636717,
                 longitude: 85.321588,
@@ -166,7 +167,7 @@
             ],
             address: null,
             accessibility: "private",
-            addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+            addedBy: ORG_ID,
             center: {
                 latitude: 23.63241536463713,
                 longitude: 85.32500837839585,
@@ -184,7 +185,7 @@
                     boundary: null,
                     address: "Unnamed Road, Patratu, Jharkhand 829143, India",
                     accessibility: "public",
-                    addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+                    addedBy: ORG_ID,
                     center: {
                         latitude: 23.632306,
                         longitude: 85.326023,
@@ -222,7 +223,7 @@
                     boundary: null,
                     address: "Jharkhand State Highway 2, Patratu, Jharkhand 829143, India",
                     accessibility: "public",
-                    addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+                    addedBy: ORG_ID,
                     center: {
                         latitude: 23.631785940627918,
                         longitude: 85.31827804627599,
@@ -262,7 +263,7 @@
                     boundary: null,
                     address: "Unnamed Road, Patratu, Jharkhand 829143, India",
                     accessibility: "public",
-                    addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+                    addedBy: ORG_ID,
                     center: {
                         latitude: 23.63355476070245,
                         longitude: 85.32587524249857,
@@ -347,7 +348,7 @@
                 ],
                 address: null,
                 accessibility: "private",
-                addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+                addedBy: ORG_ID,
                 center: {
                     latitude: 23.63241536463713,
                     longitude: 85.32500837839585,
@@ -365,7 +366,7 @@
                         boundary: null,
                         address: "Unnamed Road, Patratu, Jharkhand 829143, India",
                         accessibility: "public",
-                        addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+                        addedBy: ORG_ID,
                         center: {
                             latitude: 23.632306,
                             longitude: 85.326023,
@@ -404,7 +405,7 @@
                         address:
                             "Jharkhand State Highway 2, Patratu, Jharkhand 829143, India",
                         accessibility: "public",
-                        addedBy: "0126f405-dd36-4c52-9d21-4c095fc2e2d0",
+                        addedBy: ORG_ID,
                         center: {
                             latitude: 23.631785940627918,
                             longitude: 85.31827804627599,
@@ -488,6 +489,28 @@
     
     }
     
+    async function getShByExtId(extId) {
+        try {
+            let url = `${FRT_PUB_BASE_URL}/shipment/v1/admin/shipmentsbyexternalId?orgUuid=${ORG_ID}&externalId=${extId}&includeDeleted=false`;
+            let res = await rp({
+                uri: url,
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                json: true,
+            });
+            if (res.data) {
+                return res.data;
+            } else {
+                return null;
+            }
+        } catch (e) {
+            console.log(`catched Error while getting sh by Id ${e.message}`)
+        }
+        return null
+    }
+    
     async function main(sh, userId, fwdReasons) {
         try {
             let vehicleNo = sh.fleetInfo?.vehicle?.vehicleRegistrationNumber ?? "N/A";
@@ -523,28 +546,28 @@
         let userId = updates.userId;
         await main(sh, userId, fwdReasons);
     }
-    async function getShipments(filter, vehicleNo) {
-        try {
-            let allFields = ["shipmentNumber", "uuid"];
-            let url = `${FRT_PUB_BASE_URL}/shipment-view/shipments/v1?filters=${encodeURIComponent(
-                JSON.stringify(filter)
-            )}&allFields=${encodeURIComponent(
-                JSON.stringify(allFields)
-            )}&search=${vehicleNo}`;
-            let res = await rp({
-                uri: url,
-                method: "GET",
-                json: true,
-                headers: {
-                    authorization: TOKEN,
-                },
-            });
-            return res?.length ? res : [];
-        } catch (e) {
-            console.log(`Error getting Shipment ${e.message}`);
-        }
-        return [];
-    }
+    // async function getShipments(filter, vehicleNo) {
+    //     try {
+    //         let allFields = ["shipmentNumber", "uuid"];
+    //         let url = `${FRT_PUB_BASE_URL}/shipment-view/shipments/v1?filters=${encodeURIComponent(
+    //             JSON.stringify(filter)
+    //         )}&allFields=${encodeURIComponent(
+    //             JSON.stringify(allFields)
+    //         )}&search=${vehicleNo}`;
+    //         let res = await rp({
+    //             uri: url,
+    //             method: "GET",
+    //             json: true,
+    //             headers: {
+    //                 authorization: TOKEN,
+    //             },
+    //         });
+    //         return res?.length ? res : [];
+    //     } catch (e) {
+    //         console.log(`Error getting Shipment ${e.message}`);
+    //     }
+    //     return [];
+    // }
     
     async function createShipment(payload, retryCount = 0) {
         try {
@@ -574,34 +597,39 @@
     
     async function ensureOrCreateShipment(sh, lastStage) {
         try {
-            let vehicleNo = sh.fleetInfo?.vehicle.vehicleRegistrationNumber;
+            // let vehicleNo = sh.fleetInfo?.vehicle.vehicleRegistrationNumber;
     
-            let filter = {
-                __version: 2,
-                _not: {
-                    _shipmentStatus_: {
-                        shipmentStatus: ["Completed"],
-                    },
-                },
-                "fleetInfo.vehicle.vehicleRegistrationNumber": [vehicleNo],
-            };
+            // let filter = {
+            //     __version: 2,
+            //     _not: {
+            //         _shipmentStatus_: {
+            //             shipmentStatus: ["Completed"],
+            //         },
+            //     },
+            //     "fleetInfo.vehicle.vehicleRegistrationNumber": [vehicleNo],
+            // };
     
-            let shs = await getShipments(filter, vehicleNo);
+            // let shs = await getShipments(filter, vehicleNo);
     
-            let otherShs = shs.filter((_) => _.shipmentNumber != sh.shipmentNumber);
-            let shIds = otherShs.map((_) => _.uuid);
-            let notCompletedShs = [];
-            for (let shId of shIds) {
-                let shMaster = await getShById(shId);
-                if (shMaster?.shipmentStatus != "Completed") {
-                    notCompletedShs.push(shMaster);
-                }
-            }
-            if (notCompletedShs.length) {
-                console.log(
-                    "Shipment Already  Created " +
-                    otherShs.map(({ shipmentNumber }) => shipmentNumber)
-                );
+            // let otherShs = shs.filter((_) => _.shipmentNumber != sh.shipmentNumber);
+            // let shIds = otherShs.map((_) => _.uuid);
+            // let notCompletedShs = [];
+            // for (let shId of shIds) {
+            //     let shMaster = await getShById(shId);
+            //     if (shMaster?.shipmentStatus != "Completed") {
+            //         notCompletedShs.push(shMaster);
+            //     }
+            // }
+            // if (notCompletedShs.length) {
+            //     console.log(
+            //         "Shipment Already  Created " +
+            //         otherShs.map(({ shipmentNumber }) => shipmentNumber)
+            //     );
+            // } 
+            let shNumber = sh.shipmentNumber;
+            let shByExtId = await getShByExtId(shNumber);
+            if (shByExtId) {
+                console.log(`Shipment ${shByExtId.shipmentNumber} already exists with refrence ${shNumber}`);
             } else {
                 console.log("creating Shipment");
     
@@ -641,6 +669,7 @@
                         customFields: [],
                         uuid: null,
                         shipmentTrackingStatus: "Enroute For Delivery",
+                        externalShipmentId: shNumber,
                     },
                     consignments: [],
                 };
