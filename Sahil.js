@@ -1,31 +1,74 @@
-const rp = require("request-promise");
+const polyline = require('@mapbox/polyline');
 
-async function getFreightUnitByLineItemId(lineItemIds, token) {
-    let options = {
-        url: `https://apis.fretron.com/order-manager-v2/freight-units/v1/freight-units/by/linItemIds`,
-        method: "POST",
-        json:true,
-        body: lineItemIds,
-        headers: {
-            "Content-Type": `application/json`,
-            "Authorization": token,
-        }
-    }
-    try {
-        const response = await rp(options);
-        if (response.status != 200) {
-            console.log("Error in get freight unit: " + response.error)
-            return null
-        }
-        return response.data[0];
-    } catch (e) {
-        console.log("Error in get freight unit " + e.message);
-        return null;
-    }
+const encodedPolyline = "abngCsaysOeAHWc@iCmKmDPo@f@@r@??tEuA??i@Pt@NxB~HjADtAhGfBbCdDpQzBLlAc@akAedHiC_GPcDeHs_@kFmOyq@_}A_EeLu@}Dh@uTs@uAuAi@_BHmAt@m@tCfC~FzEhBpi@oCrDi@~CqAtb@{\jKgHzsAus@paDaoA??fBs@";
+
+const decodedCoordinates = polyline.decode(encodedPolyline);
+
+function haversineDistance(coord1, coord2) {
+    const toRad = angle => (Math.PI / 180) * angle;
+    const R = 6371e3; // Earth's radius in meters
+    const lat1 = toRad(coord1[0]);
+    const lon1 = toRad(coord1[1]);
+    const lat2 = toRad(coord2[0]);
+    const lon2 = toRad(coord2[1]);
+    
+    const dLat = lat2 - lat1;
+    const dLon = lon2 - lon1;
+    
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) ** 2;
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    
+    return R * c; // Distance in meters
 }
 
-const lineItemIds = ["7d98e3d0-730f-4b8f-bb81-8e0d75afa1a5"];
-const token = "Beaer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzgyMTQ4NDgsInVzZXJJZCI6IjNmNjdlNmFmLWU5MjAtNGNmNy1hMTViLWIzMjc4Zjc4ZjFkMiIsImVtYWlsIjoic2FoaWwuYWdnYXJ3YWxAZnJldHJvbi5jb20iLCJtb2JpbGVOdW1iZXIiOiI3MDU2MDMyNzQ0Iiwib3JnSWQiOiJjYTExMmFlNi1iNzA3LTRmYTctOWUyYi0yMzk5ZGIxMTBkODIiLCJuYW1lIjoiU2FoaWwiLCJvcmdUeXBlIjoiRkxFRVRfT1dORVIiLCJpc0dvZCI6dHJ1ZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.u-qpXxPHsA-QsfufQehUcUqNLW6m3Jb7HpbiswXfUGw"
-getFreightUnitByLineItemId(lineItemIds, token)
-    .then(data => console.log("Freight Unit:", data))
-    .catch(err => console.error("API Error:", err));
+function getOffTrackDistance(decodedCoordinates, givenCoordinates) {
+    let minDistance = Infinity;
+    
+    for (const coord of decodedCoordinates) {
+        const distance = haversineDistance(coord, givenCoordinates);
+        if (distance < minDistance) {
+            minDistance = distance;
+        }
+    }
+    
+    return minDistance; // Minimum off-track distance in meters
+}
+
+function getMaxSegmentDistance(decodedCoordinates) {
+    let maxDistance = 0;
+    let maxDistancePoints = {
+        point1: null,
+        point2: null
+    };
+    
+    // Loop through coordinates except the last one
+    for (let i = 0; i < decodedCoordinates.length - 1; i++) {
+        const currentCoord = decodedCoordinates[i];
+        const nextCoord = decodedCoordinates[i + 1];
+        
+        const distance = haversineDistance(currentCoord, nextCoord);
+        if (distance > maxDistance) {
+            maxDistance = distance;
+            maxDistancePoints.point1 = currentCoord;
+            maxDistancePoints.point2 = nextCoord;
+        }
+    }
+    
+    return {
+        distance: maxDistance,
+        points: maxDistancePoints
+    };
+}
+
+let givenCoordinates = [
+    22.356951111111112,
+    87.2923988888889
+]
+
+// console.log(decodedCoordinates)
+// console.log(getOffTrackDistance(decodedCoordinates, givenCoordinates))
+// const maxSegmentInfo = getMaxSegmentDistance(decodedCoordinates);
+// console.log("Maximum distance between consecutive points:", maxSegmentInfo.distance);
+// console.log("Points with maximum distance:", maxSegmentInfo.points);
+
+console.log(new Date(Date.now()).toISOString().replace('T', ' ').replace(/\.\d+Z$/, ''))
