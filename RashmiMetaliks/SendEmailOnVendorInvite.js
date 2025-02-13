@@ -2,6 +2,8 @@
 const TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIwMjA5NzQsInVzZXJJZCI6ImJvdHVzZXItLTM3MzUzMmFmLTEzOTAtNGUyOC04ODcxLTExYTZlYTcwODUxMiIsIm1vYmlsZU51bWJlciI6ImJvdHVzZXItLTM3MzUzMmFmLTEzOTAtNGUyOC04ODcxLTExYTZlYTcwODUxMiIsIm9yZ0lkIjoiMjA4YWZkYWQtZGVhYi00Yzc2LThkNDktMzBhNzBmNDIwZjM1IiwibmFtZSI6IkJvdCB0b2tlbiIsIm9yZ1R5cGUiOiJGTEVFVF9PV05FUiIsImlzR29kIjpmYWxzZSwicG9ydGFsVHlwZSI6ImJhc2ljIn0.g5BbII_VTjjjucZL-VhW5gznhBLVdxa5dqcStjFCQM0";
 const ORGID = "208afdad-deab-4c76-8d49-30a70f420f35";
 const rp = require("request-promise");
+const INVITE_EVENT = "auction.transporter.invite.event"
+const AUCTION_BID_ACCEPTED_EVENT = "auction.bid.accepted.event"
 const FRT_PUB_BASE_URL = "https://apis.fretron.com";
 let auction = {
     "orderId": "TEST_AUC_05",
@@ -921,10 +923,10 @@ let auction = {
     "remarks": []
 }
 
-let index = "bpartners"
-const query = (uuids) => {
+let partnerIndex = "bpartners"
+const partnerQuery = (uuids) => {
     return {
-        "_source": ["contacts","name"],
+        "_source": ["contacts", "name", "type"],
         "size": 20,
         "query": {
             "bool": {
@@ -932,6 +934,29 @@ const query = (uuids) => {
                     {
                         "terms": {
                             "uuid.keyword": uuids
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}
+
+let orderIndex = "salesorders_v2"
+const orderQuery = (orderId) => {
+    return {
+        "_source": [
+            "orderNumber"
+        ],
+        "size": 100,
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "terms": {
+                            "uuid.keyword": [
+                                "67665127-1144-4fda-bfb3-38967a94a86f"
+                            ]
                         }
                     }
                 ]
@@ -967,14 +992,41 @@ async function getDataFromElastic(index, query) {
     }
 }
 
-async function sendEmail(html, jsonArr, to, cc = []) {
+async function getTokenForVendorPortal(bpId, partnerType) {
+    try {
+        let url = `${FRT_PUB_BASE_URL}/users/v1/user/agent/token`
+        let options = {
+            method: "GET",
+            uri: url,
+            qs: {
+                bpId: bpId,
+                partnerType: partnerType
+            },
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json"
+            },
+            json: true
+        }
+        let response = await rp(options)
+        if (!response?.token) {
+            throw new Error("Token not found in response")
+        }
+        return response.token
+    } catch (err) {
+        console.error("Error getting vendor portal token:", err.message)
+        throw err
+    }
+}
+
+async function sendEmail(subject, html, jsonArr, to, cc = []) {
     let url = `${FRT_PUB_BASE_URL}/shipment-view/shipments/json/email`;
     let payload = {
         data: jsonArr,
         emailInfo: {
             to: to,
             cc: cc,
-            subject: "Rashmi Metaliks: Vendor Invitation",
+            subject: subject,
             html: html
         },
         orgId: ORGID,
@@ -995,42 +1047,61 @@ async function sendEmail(html, jsonArr, to, cc = []) {
     return "Mail Sent"
 }
 
-async function createAuctionDataObject(auction, transporterName = null) {
+async function createAuctionDataObject(auction, bpPortalToken) {
+    let portalLink = "NA"
+    if (bpPortalToken) {
+        portalLink = `https://portal.fretron.com/auth?_token=${bpPortalToken}`
+    }
     return {
-        'Order Number': auction?.orderId,
+        'Order Numbers': auction?.orderId,
         'Dispatch from Location': auction?.origin?.name,
         'Destination': auction?.destination?.name,
-        'Required Total Trucks': auction?.allowedVehicleTypes.join(" | ")
+        'Required Total Trucks': auction?.numberOfVehicles ?? 1,
+        'Total Tonnage': auction?.totalQuantity,
+        'Vehicle Types': auction?.allowedVehicleTypes.join(" | "),
+        'Bidding Link': portalLink
     };
 }
 
-async function createExcelReportConsolidated(auction) {
+async function createExcelReportConsolidated(auction, forwardedReasons) {
     try {
         const defaultRecipients = [
             // "monu.khan@fretron.com",
             "sahil.aggarwal@fretron.com"
         ];
-        
-        let bPartners = await getDataFromElastic(index, query(auction.allowedTransporters));
-        const data = await createAuctionDataObject(auction);
-        
-        // Send individual emails to each business partner
-        for (const bp of bPartners) {
-            const partnerName = bp?.name || "Valued Partner";
-            const partnerEmails = bp?.contacts?.flatMap(contact => contact?.emails || []) || [];
-            
-            if (partnerEmails.length === 0) {
-                console.log(`Sending Mail to ${partnerName}:`, partnerEmails);
-                
-                // Combine partner emails with default recipients
-                const to = [...new Set([...partnerEmails, ...defaultRecipients])];
-                
-                if (data) {
-                    let content = convertJSONtoHTMLInvite(data, partnerName);
-                    await sendEmail(content, [data], to);
-                    console.log("Mail Sent")
+        if (forwardedReasons.includes(INVITE_EVENT)) {
+            let bPartners = await getDataFromElastic(partnerIndex, partnerQuery(auction.allowedTransporters));
+            // let orders = await getDataFromElastic(orderIndex, orderQuery(auction.salesOrderMappings.map(som => som.orderId)));
+
+
+            // Send individual emails to each business partner
+            for (const bp of bPartners) {
+                const bpPortalToken = await getTokenForVendorPortal(bp.uuid, bp.type);
+                const data = await createAuctionDataObject(auction, bpPortalToken);
+                const partnerName = bp?.name || "Valued Partner";
+                const partnerEmails = bp?.contacts?.flatMap(contact => contact?.emails || []) || [];
+
+                if (partnerEmails.length === 0) {
+                    console.log(`Sending Mail to ${partnerName}:`, partnerEmails);
+
+                    // Combine partner emails with default recipients
+                    const to = [...new Set([...partnerEmails, ...defaultRecipients])];
+
+                    if (data) {
+                        let subject = `Invitation for Bidding on Outbound Freight Requirement`
+                        let content = convertJSONtoHTMLInvite(data, partnerName);
+                        await sendEmail(subject, content, [data], to);
+                        console.log("Mail Sent")
+                    }
                 }
             }
+        }
+        if (forwardedReasons.includes(AUCTION_BID_ACCEPTED_EVENT)) {
+            let subject = `Auction (#${auction.orderId}) Ended – Winner Selection Required`;
+            let data = await createAuctionDataObject(auction, "NONE");
+            let content = convertJSONtoHTMLBidAccepted(auction.orderId, "NONE");
+            await sendEmail(subject, content, [data], ["sahil.aggarwal@fretron.com"]);
+            console.log("Mail Sent")
         }
     } catch (error) {
         console.log(`Error creating Excel report: ${error.message}`);
@@ -1083,4 +1154,35 @@ function convertJSONtoHTMLInvite(jsonData, name) {
     return htmlContent;
 }
 
-createExcelReportConsolidated(auction);
+function convertJSONtoHTMLBidAccepted(auctionNum, portalLink) {
+
+    let htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div style="font-family: Arial, sans-serif;">
+            <p>Dear Gyanendra Ji,</p>
+            
+            <p>The auction (#${auctionNum}) has now concluded as per the schedule and requires you to mark the winner.</p>
+            
+            <p>Please review the details and select the winner using the auction link below:</p>
+            
+            <p><a href="${portalLink}" style="color: #0066cc;">${portalLink}</a></p>
+
+            <p>Your prompt action would be greatly appreciated. Let us know if you need any further information.</p>
+            
+            <p>Best regards</p>
+        </div>
+    </body>
+    </html>`;
+
+    return htmlContent;
+}
+
+
+
+createExcelReportConsolidated(auction, auction.updates.forwardReasons);
