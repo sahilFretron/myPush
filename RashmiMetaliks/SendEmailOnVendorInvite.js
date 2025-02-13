@@ -3,7 +3,7 @@ const TOKEN = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE3MzIwMjA5NzQsInVzZXJJZCI6I
 const ORGID = "208afdad-deab-4c76-8d49-30a70f420f35";
 const rp = require("request-promise");
 const INVITE_EVENT = "auction.transporter.invite.event"
-const AUCTION_BID_ACCEPTED_EVENT = "auction.bid.accepted.event"
+const AUCTION_CLOSED_EVENT = "auction.closed.status.event"
 const FRT_PUB_BASE_URL = "https://apis.fretron.com";
 let auction = {
     "orderId": "TEST_AUC_05",
@@ -1096,7 +1096,7 @@ async function createExcelReportConsolidated(auction, forwardedReasons) {
                 }
             }
         }
-        if (forwardedReasons.includes(AUCTION_BID_ACCEPTED_EVENT)) {
+        if (forwardedReasons.includes(AUCTION_CLOSED_EVENT)) {
             let subject = `Auction (#${auction.orderId}) Ended – Winner Selection Required`;
             let data = await createAuctionDataObject(auction, "NONE");
             let content = convertJSONtoHTMLBidAccepted(auction.orderId, "NONE");
