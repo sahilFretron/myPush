@@ -4,7 +4,8 @@ function mapConsumablesData() {
         summary: ss.getSheets()[0],
         daily: ss.getSheets()[1],
         purchase: ss.getSheets()[2],
-        lost: ss.getSheets()[3]
+        lost: ss.getSheets()[3],
+        damaged: ss.getSheets()[4]
     };
 
     // Get all data from sheets
@@ -12,7 +13,8 @@ function mapConsumablesData() {
         summary: sheets.summary.getDataRange().getValues(),
         daily: sheets.daily.getDataRange().getValues(),
         purchase: sheets.purchase.getDataRange().getValues(),
-        lost: sheets.lost.getDataRange().getValues()
+        lost: sheets.lost.getDataRange().getValues(),
+        damaged: sheets.damaged.getDataRange().getValues()
     };
 
     // Process each type of data
@@ -21,7 +23,7 @@ function mapConsumablesData() {
     const terminalColumns = mapTerminalColumns(data.summary, dailyMap.terminals);
 
     // Update summary sheet
-    updateSummarySheet(sheets.summary, data.summary, dailyMap, purchaseMap, data.lost, terminalColumns);
+    updateSummarySheet(sheets.summary, data.summary, dailyMap, purchaseMap, data.lost, data.damaged, terminalColumns);
 }
 
 function createDailyMap(dailyData) {
@@ -110,6 +112,37 @@ function processLostItems(itemName, lostData, currentValues) {
     return values;
 }
 
+function processDamagedItems(itemName, damagedData, currentValues) {
+    // Clone the current values to avoid direct mutation
+    const values = { ...currentValues };
+
+    for (let j = 1; j < damagedData.length; j++) {
+        const damagedRow = damagedData[j];
+        const damagedItemName = damagedRow[1].toString().trim().toUpperCase();
+        const damagedQty = damagedRow[3] || 0;
+        const reason = damagedRow[4].toString().trim().toUpperCase();
+
+        if (damagedItemName === itemName) {
+            switch (reason) {
+                case 'DAMAGED':
+                    values.transit -= damagedQty;
+                    values.damaged += damagedQty;
+                    break;
+                case 'DISCARD':
+                    values.damaged -= damagedQty;
+                    values.final -= damagedQty;
+                    break;
+                case 'REPAIRED':
+                    values.transit += damagedQty;
+                    values.damaged -= damagedQty;
+                    break;
+            }
+        }
+    }
+
+    return values;
+}
+
 function processPurchases(itemName, purchaseMap, currentValues) {
     const values = { ...currentValues };
     
@@ -156,15 +189,16 @@ function processTerminalUpdates(sheet, rowIndex, itemName, dailyMap, terminalCol
     return values;
 }
 
-function updateSummarySheet(summarySheet, summaryData, dailyMap, purchaseMap, lostData, terminalColumns) {
+function updateSummarySheet(summarySheet, summaryData, dailyMap, purchaseMap, lostData, damagedData, terminalColumns) {
     // Column indices
     const columns = {
         transit: 29,    // AC
         lost: 30,       // AD
         sent: 31,       // AE
         received: 32,   // AF
-        closing: 33,    // AG
-        final: 34       // AH
+        damaged: 33,    // AG
+        closing: 34,    // AH
+        final: 35       // AI
     };
 
     // Update each row in summary sheet
@@ -178,6 +212,7 @@ function updateSummarySheet(summarySheet, summaryData, dailyMap, purchaseMap, lo
             sent: summarySheet.getRange(rowIndex, columns.sent).getValue() || 0,
             received: summarySheet.getRange(rowIndex, columns.received).getValue() || 0,
             lost: summarySheet.getRange(rowIndex, columns.lost).getValue() || 0,
+            damaged: summarySheet.getRange(rowIndex, columns.damaged).getValue() || 0,
             final: summarySheet.getRange(rowIndex, columns.final).getValue() || 0
         };
 
@@ -185,7 +220,7 @@ function updateSummarySheet(summarySheet, summaryData, dailyMap, purchaseMap, lo
         values = processTerminalUpdates(summarySheet, rowIndex, itemName, dailyMap.dailyMap, terminalColumns, values);
         values = processPurchases(itemName, purchaseMap, values);
         values = processLostItems(itemName, lostData, values);  
-
+        values = processDamagedItems(itemName, damagedData, values);
         // Update all cells with formatting
         const updateCellWithFormat = (range, value) => {
             range.setValue(value);
@@ -200,6 +235,7 @@ function updateSummarySheet(summarySheet, summaryData, dailyMap, purchaseMap, lo
         updateCellWithFormat(summarySheet.getRange(rowIndex, columns.sent), values.sent);
         updateCellWithFormat(summarySheet.getRange(rowIndex, columns.received), values.received);
         updateCellWithFormat(summarySheet.getRange(rowIndex, columns.lost), values.lost);
+        updateCellWithFormat(summarySheet.getRange(rowIndex, columns.damaged), values.damaged);
         updateCellWithFormat(summarySheet.getRange(rowIndex, columns.final), values.final);
 
         // Calculate closing quantity (sum of D through AD)
