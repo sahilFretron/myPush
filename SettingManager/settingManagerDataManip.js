@@ -10,7 +10,8 @@ async function transformToNewDataModel(oldData) {
     for (const [key, rule] of Object.entries(oldData.masterRules)) {
         updatedMasterRules[key] = {
             ...rule,
-            possibleEntityBehaviours: oldData.possibleEntityBehaviours || []
+            possibleEntityBehaviours: oldData.possibleEntityBehaviours || [],
+            possibleEntityTypes: [oldData.masterRules[key].entityType]
         };
     }
 
