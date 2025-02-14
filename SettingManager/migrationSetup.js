@@ -3,32 +3,32 @@ const { migrateData } = require('./settingManagerDataManip');
 
 const config = {
     oldDB: {
-        url: 'mongodb://localhost:27017',  
-        dbName: 'SettingManagerTest',      
-        collection: 'setting'      
+        url: 'mongodb://192.168.1.12:3017/?readPreference=primary&directConnection=true&ssl=false',
+        collection: 'reports-upload-settings',      
+        dbName: 'commonsettings'      
     },
     newDB: {
-        url: 'mongodb://localhost:27017',  
-        dbName: 'SettingManagerTest',       
-        collection: 'setting_v2'          
+        url: 'mongodb://192.168.1.12:3017/?readPreference=primary&directConnection=true&ssl=false/',
+        collection: 'reports-upload-settings-test',       
+        dbName: 'commonsettings'          
     }
 };
 
 const mongoOptions = {
     useNewUrlParser: true,
-    useUnifiedTopology: true,
+    useUnifiedTopology: true
 };
 
 async function setupMigration() {
-    let oldClient, newClient;
+    let client;
     
     try {
-        oldClient = await MongoClient.connect(config.oldDB.url, mongoOptions);
-        const oldDb = oldClient.db(config.oldDB.dbName);
+        console.log('Attempting to connect to old DB:', config.oldDB.url);
+        client = await MongoClient.connect(config.oldDB.url, mongoOptions);
+        const oldDb = client.db(config.oldDB.dbName);
         global.oldCollection = oldDb.collection(config.oldDB.collection);
         
-        newClient = await MongoClient.connect(config.newDB.url, mongoOptions);
-        const newDb = newClient.db(config.newDB.dbName);
+        const newDb = client.db(config.newDB.dbName);
         global.newCollection = newDb.collection(config.newDB.collection);
         
         console.log('Connected to both databases successfully');
@@ -37,11 +37,11 @@ async function setupMigration() {
         
     } catch (error) {
         console.error('Error during migration setup:', error);
+        console.error('Full error details:', JSON.stringify(error, null, 2));
         throw error;
         
     } finally {
-        if (oldClient) await oldClient.close();
-        if (newClient) await newClient.close();
+        if (client) await client.close();
         console.log('Database connections closed');
     }
 }
