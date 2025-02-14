@@ -2,6 +2,202 @@ const SHIPMENT_ID = $event.uuid
 const ORG_ID = "d255a000-f271-489e-9408-b9fb7d592b44"
 const token = "Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2ODExMTQyMTYsInVzZXJJZCI6ImJvdHVzZXItLWZmYjNlZjBlLWI2MTUtNDkzNC1hNmY5LTVhYzEzYzZlNmRiZSIsIm1vYmlsZU51bWJlciI6ImJvdHVzZXItLWZmYjNlZjBlLWI2MTUtNDkzNC1hNmY5LTVhYzEzYzZlNmRiZSIsIm9yZ0lkIjoiZDI1NWEwMDAtZjI3MS00ODllLTk0MDgtYjlmYjdkNTkyYjQ0IiwibmFtZSI6IlNISVBNRU5UX1RPS0VOIiwib3JnVHlwZSI6IkZMRUVUX09XTkVSIiwiaXNHb2QiOmZhbHNlLCJwb3J0YWxUeXBlIjoiYmFzaWMifQ.0DNhxf1UDvoZvO-fJaZiNcsbBkJUhcotQ7GsTdR7yCM"
 
+//****************************************
+
+const CUSTOMER_EMAIL_PHONE_INFO = [
+    {
+        "shipToPartyCode": "1010002719",
+        "shipToPartyName": "GILLETTE INDIA LIMITED",
+        "shipToCity": "BHIWADI",
+        "emails": ["shailesh.arya@jindalstainless.com", "pradyumn.mattu@jindalstainless.com"],
+        "phone": ["9958654400", "9971595973"]
+    },
+    {
+        "shipToPartyCode": "1100001584",
+        "shipToPartyName": "ACE PERSONAL CARE P LTD",
+        "shipToCity": "HYDERABAD",
+        "emails": ["shailesh.arya@jindalstainless.com", "pradyumn.mattu@jindalstainless.com"],
+        "phone": ["9958654400", "9971595973"]
+    },
+    {
+        "shipToPartyCode": "1010014024",
+        "shipToPartyName": "PPAP Automotive",
+        "shipToCity": "NOIDA",
+        "emails": ["mayank.goyal@jindalstainless.com"],
+        "phone": ["7230091323"]
+    },
+    {
+        "shipToPartyCode": "1010019258",
+        "shipToPartyName": "RKRM INTERNATIONAL PRODUCTS",
+        "shipToCity": "UNA",
+        "emails": ["shailesh.arya@jindalstainless.com", "pradyumn.mattu@jindalstainless.com"],
+        "phone": ["9958654400", "9971595973"]
+    },
+    {
+        "shipToPartyCode": "1010004759",
+        "shipToPartyName": "ALFA FLEXI TUBES",
+        "shipToCity": "BAHADURGARH",
+        "emails": ["mayank.goyal@jindalstainless.com"],
+        "phone": ["7230091323"]
+    },
+    {
+        "shipToPartyCode": "1010018761",
+        "shipToPartyName": "VNS PROTECH",
+        "shipToCity": "SAMBA",
+        "emails": ["shailesh.arya@jindalstainless.com", "pradyumn.mattu@jindalstainless.com"],
+        "phone": ["9958654400", "9971595973"]
+    },
+    {
+        "shipToPartyCode": "1010017073",
+        "shipToPartyName": "SUPREME SHAVERS INDIA PRIVATE LIMIT",
+        "shipToCity": "SONIPAT",
+        "emails": ["shailesh.arya@jindalstainless.com", "pradyumn.mattu@jindalstainless.com"],
+        "phone": ["9958654400", "9971595973"]
+    },
+    {
+        "shipToPartyCode": "1010009226",
+        "shipToPartyName": "GreatWhite Global Pvt Ltd",
+        "shipToCity": "HARIDWAR",
+        "emails": ["shailesh.arya@jindalstainless.com", "pradyumn.mattu@jindalstainless.com"],
+        "phone": ["9958654400", "9971595973"]
+    },
+    {
+        "shipToPartyCode": "1010012953",
+        "shipToPartyName": "Zircon Global Manufacturing (LLP)",
+        "shipToCity": "JAMMU",
+        "emails": ["shailesh.arya@jindalstainless.com", "pradyumn.mattu@jindalstainless.com"],
+        "phone": ["9958654400", "9971595973"]
+    },
+    {
+        "shipToPartyCode": "1100002119",
+        "shipToPartyName": "DHRUV EXIM",
+        "shipToCity": "",
+        "emails": [],
+        "phone": ["9820094706"]
+    },
+    {
+        "shipToPartyCode": "1010016697",
+        "shipToPartyName": "SHREE VENKTESH WIRES & STEELS PVT.L",
+        "shipToCity": "",
+        "emails": [],
+        "phone": ["9769760407"]
+    },
+    {
+        "shipToPartyCode": "1010000571",
+        "shipToPartyName": "SHREE VENKTESH WIRES & STEELS PVT.L",
+        "shipToCity": "",
+        "emails": [],
+        "phone": ["9769760407"]
+    },
+    {
+        "shipToPartyCode": "1010021393",
+        "shipToPartyName": "UJALA STAINLESS PRIVATE LIMITED",
+        "shipToCity": "",
+        "emails": [],
+        "phone": ["9899026236"]
+    },
+    {
+        "shipToPartyCode": "1010011865",
+        "shipToPartyName": "D M METALLOYS PRIVATE LIMITED",
+        "shipToCity": "",
+        "emails": [],
+        "phone": ["9324042086"]
+    },
+    {
+        "shipToPartyCode": "1010011047",
+        "shipToPartyName": "D M METALLOYS PRIVATE LIMITED",
+        "shipToCity": "",
+        "emails": [],
+        "phone": ["9324042086"]
+    },
+    {
+        "shipToPartyCode": "1010017453",
+        "shipToPartyName": "M.M.METALS",
+        "shipToCity": "",
+        "emails": [],
+        "phone": ["9324042086"]
+    },
+    {
+        "shipToPartyCode": "1010000342",
+        "shipToPartyName": "LARSEN & TOUBRO LTD",
+        "shipToCity": "HAZIRA",
+        "emails": ["supriyo.paul@jindalstainless.com"],
+        "phone": ["8167533539"]
+    },
+    {
+        "shipToPartyCode": "1010001057",
+        "shipToPartyName": "KOCH ENGINEERED SOLUTIONS",
+        "shipToCity": "BARODA",
+        "emails": ["supriyo.paul@jindalstainless.com", "vedant.jalan@jindalstainless.com"],
+        "phone": ["8167533539", "8303810195"]
+    },
+    {
+        "shipToPartyCode": "1010002560",
+        "shipToPartyName": "MASROS ENGINEERS",
+        "shipToCity": "FARIDABAD",
+        "emails": ["mayank.goyal@jindalstainless.com", "vedant.jalan@jindalstainless.com"],
+        "phone": ["7230091323", "8303810195"]
+    },
+    {
+        "shipToPartyCode": "1010002598",
+        "shipToPartyName": "AEROFLEX",
+        "shipToCity": "TALOJA",
+        "emails": ["supriyo.paul@jindalstainless.com", "vedant.jalan@jindalstainless.com"],
+        "phone": ["8167533539", "8303810195"]
+    },
+    {
+        "shipToPartyCode": "1010003360",
+        "shipToPartyName": "SHARDA MOTOR",
+        "shipToCity": "KANCHIPURAM",
+        "emails": ["vedant.jalan@jindalstainless.com", "supriyo.paul@jindalstainless.com"],
+        "phone": ["8303810195", "8167533539"]
+    },
+    {
+        "shipToPartyCode": "1010003443",
+        "shipToPartyName": "SHREE MPF",
+        "shipToCity": "CHENNAI",
+        "emails": ["vedant.jalan@jindalstainless.com", "supriyo.paul@jindalstainless.com"],
+        "phone": ["8303810195", "8167533539"]
+    },
+    {
+        "shipToPartyCode": "1010003486",
+        "shipToPartyName": "NEEL METAL",
+        "shipToCity": "GURGAON",
+        "emails": ["supriyo.paul@jindalstainless.com"],
+        "phone": ["8167533539"]
+    },
+    {
+        "shipToPartyCode": "1010003519",
+        "shipToPartyName": "ELRINGKLINGER AUTOMOTIVE",
+        "shipToCity": "PUNE",
+        "emails": ["vedant.jalan@jindalstainless.com"],
+        "phone": ["8303810195"]
+    },
+    {
+        "shipToPartyCode": "1010003663",
+        "shipToPartyName": "VICTOR",
+        "shipToCity": "PUNE",
+        "emails": ["vedant.jalan@jindalstainless.com"],
+        "phone": ["8303810195"]
+    },
+    {
+        "shipToPartyCode": "1010003714",
+        "shipToPartyName": "INGRESS AUTO",
+        "shipToCity": "MANESAR",
+        "emails": ["supriyo.paul@jindalstainless.com"],
+        "phone": ["8167533539"]
+    },
+    {
+        "shipToPartyCode": "1010005703",
+        "shipToPartyName": "FINEPAC",
+        "shipToCity": "PUNE",
+        "emails": ["vedant.jalan@jindalstainless.com"],
+        "phone": ["8303810195"]
+    }
+]
+
+
+//***************************************
 
 const CUSTOMER_INFO = [
     {
@@ -186,6 +382,53 @@ const NEW_CUSTOMER_CODES = [
 
 console.log($event.shipmentNumber)
 
+
+//*************************************************************************** */
+async function sendSms(content, mobileNumber) {
+    let res = await rp({
+        method: "post",
+        uri: `${FRT_PUB_BASE_URL}/notifications/smsing/sms`,
+        body: {
+            to: mobileNumber,
+            content: content,
+        },
+        json: true,
+    });
+    return res;
+}
+
+async function getLiveLocation(shipmentId) {
+    try {
+        let url = `${FRT_PUB_BASE_URL}/shipment/v1/shipment/share-sh`
+        let options = {
+            method: "POST",
+            uri: url,
+            headers: {
+                'Authorization': token
+            },
+            body: {
+                "shId": shipmentId,
+                "orgName": "Jindal Stainless Ltd",
+                "emails": [],
+                "domainName": "https://alpha.fretron.com",
+                "mobileNos": [],
+                "html": "Link:"
+            },
+            json: true
+        }
+        let res = await rp(options)
+        if (res?.status === 200) {
+            return res
+        }
+    } catch (err) {
+        console.log(`Error in sharing shipment details: ${err.message}`)
+        return null
+    }
+}
+
+
+//************************************************************************* */
+
 if ($event.shipmentTrackingStatus == "Enroute For Delivery" && $event.updates.description.includes("Marked vehicle departed from")) {
 
     try {
@@ -213,6 +456,13 @@ if ($event.shipmentTrackingStatus == "Enroute For Delivery" && $event.updates.de
             const destination = _.last($event.shipmentStages)?.place?.name ?? _.last($event.shipmentStages)?.hub?.name ?? ""
             const trackingLink = `https://test.fretron.com/shared-shipment?uuid=${SHIPMENT_ID}`
 
+            //************************************************** */
+            const liveLocData = await getLiveLocation(SHIPMENT_ID)
+                const smsLiveLocationLink = liveLocData?.data ?
+                    `https://alpha.fretron.com/shared-shipment/v4?code=${liveLocData?.data}` : '';
+
+            //************************************************** */
+
             const customerEmails = customerMaster.contacts?.find((e) => e.name.includes("(KAM)"))?.emails
 
             let to = customerEmails ? customerEmails : [CUSTOMER_INFO.find((e) => e.ship_to_part_code == customerCode)?.email_ids]
@@ -231,6 +481,25 @@ if ($event.shipmentTrackingStatus == "Enroute For Delivery" && $event.updates.de
             const html = _generateHTML({ shipmentDate, vehicleNo, shipToParty: customer, origin, destination, trackingLink })
             const emailRes = await sendEmail(to, cc, subject, null, html)
             console.log(emailRes)
+
+
+            //************************************************** */
+            try {
+                const customerInfo = CUSTOMER_EMAIL_PHONE_INFO.find(info => info.shipToPartyCode === customerCode)
+                if (customerInfo && customerInfo.phone && customerInfo.phone.length > 0) {
+                    const smsContent = `Shipment No. - ${$event.shipmentNumber} Shipment Date. - ${shipmentDate} Vehicle No. - ${vehicleNo} Shipment origin. - ${origin} Destination - ${destination} Link - ${smsLiveLocationLink}`
+                    console.log(smsContent)
+                    for (const phoneNumber of customerInfo.phone) {
+                        const smsRes = await sendSms(smsContent, phoneNumber)
+                        console.log(`SMS sent to ${phoneNumber}:`, smsRes)
+                    }
+                } else {
+                    console.log(`No phone numbers found for customer code: ${customerCode}`)
+                }
+            } catch (error) {
+                console.log(`Error sending SMS for customer ${customerCode}:`, error.message)
+            }
+            //************************************************** */
         }
     } catch (e) {
         console.log(`Cathed Error : ${e.message}`)
