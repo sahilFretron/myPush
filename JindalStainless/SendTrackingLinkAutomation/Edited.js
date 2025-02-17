@@ -426,88 +426,6 @@ async function getLiveLocation(shipmentId) {
     }
 }
 
-
-//************************************************************************* */
-
-if ($event.shipmentTrackingStatus == "Enroute For Delivery" && $event.updates.description.includes("Marked vehicle departed from")) {
-
-    try {
-        const cns = await getCnsByShId(SHIPMENT_ID);
-
-        if (!cns || !cns.length) {
-            console.log("No Consignments")
-            return
-        }
-        const customerCodes = _.uniq(cns.map((cn) => cn.customFields?.find((e) => e.fieldKey == "Ship to Party")?.value))
-        console.log({ customerCodes })
-
-        for (const customerCode of customerCodes) {
-            if (!customerCode || (!CUSTOMER_INFO.find((e) => e.ship_to_part_code == customerCode) && !NEW_CUSTOMER_CODES.includes(customerCode))) {
-                console.log(`Customer not found ${customerCode}`)
-                continue
-            }
-
-            const customerMaster = await getBpByKeyValue("externalId", customerCode)
-
-            const shipmentDate = formatDate($event.shipmentDate)
-            const vehicleNo = $event.fleetInfo.vehicle.vehicleRegistrationNumber
-            const customer = customerMaster?.name
-            const origin = _.first($event.shipmentStages)?.place?.name ?? _.first($event.shipmentStages)?.hub?.name ?? ""
-            const destination = _.last($event.shipmentStages)?.place?.name ?? _.last($event.shipmentStages)?.hub?.name ?? ""
-            const trackingLink = `https://test.fretron.com/shared-shipment?uuid=${SHIPMENT_ID}`
-
-            //************************************************** */
-            const liveLocData = await getLiveLocation(SHIPMENT_ID)
-                const smsLiveLocationLink = liveLocData?.data ?
-                    `https://alpha.fretron.com/shared-shipment/v4?code=${liveLocData?.data}` : '';
-
-            //************************************************** */
-
-            const customerEmails = customerMaster.contacts?.find((e) => e.name.includes("(KAM)"))?.emails
-
-            let to = customerEmails ? customerEmails : [CUSTOMER_INFO.find((e) => e.ship_to_part_code == customerCode)?.email_ids]
-            if (NEW_CUSTOMER_CODES.includes(customerCode)) {
-                console.log("Customer Found From Latest Records")
-                to = ["supriyo.paul@jindalstainless.com"]
-            }
-            const cc = [
-                'nishant.girdhar@jindalstainless.com',
-                'dariya.singh@jindalstainless.com',
-                'ankita.saxena@jindalstainless.com',
-                'monu.khan@fretron.com',
-                'devendra.singh@fretron.com'        
-            ]
-            const subject = `Shipment Tracking link - ${vehicleNo} - ${customer}`
-            const html = _generateHTML({ shipmentDate, vehicleNo, shipToParty: customer, origin, destination, trackingLink })
-            const emailRes = await sendEmail(to, cc, subject, null, html)
-            console.log(emailRes)
-
-
-            //************************************************** */
-            try {
-                const customerInfo = CUSTOMER_EMAIL_PHONE_INFO.find(info => info.shipToPartyCode === customerCode)
-                if (customerInfo && customerInfo.phone && customerInfo.phone.length > 0) {
-                    const smsContent = `Shipment No. - ${$event.shipmentNumber} Shipment Date. - ${shipmentDate} Vehicle No. - ${vehicleNo} Shipment origin. - ${origin} Destination - ${destination} Link - ${smsLiveLocationLink}`
-                    console.log(smsContent)
-                    for (const phoneNumber of customerInfo.phone) {
-                        const smsRes = await sendSms(smsContent, phoneNumber)
-                        console.log(`SMS sent to ${phoneNumber}:`, smsRes)
-                    }
-                } else {
-                    console.log(`No phone numbers found for customer code: ${customerCode}`)
-                }
-            } catch (error) {
-                console.log(`Error sending SMS for customer ${customerCode}:`, error.message)
-            }
-            //************************************************** */
-        }
-    } catch (e) {
-        console.log(`Cathed Error : ${e.message}`)
-    }
-}
-
-
-
 async function getCnsByShId(shId) {
     const response = await rp({
         uri: `${FRT_PUB_BASE_URL}/shipment/v1/shipment/${shId}/consignments`,
@@ -621,4 +539,89 @@ function formatDate(epoch) {
     const year = String(date.getFullYear());
 
     return `${day}-${month}-${year}`;
+}
+
+if ($event.shipmentTrackingStatus == "Enroute For Delivery" && $event.updates.description.includes("Marked vehicle departed from")) {
+
+    try {
+        const cns = await getCnsByShId(SHIPMENT_ID);
+
+        if (!cns || !cns.length) {
+            console.log("No Consignments")
+            return
+        }
+        const customerCodes = _.uniq(cns.map((cn) => cn.customFields?.find((e) => e.fieldKey == "Ship to Party")?.value))
+        console.log({ customerCodes })
+
+        for (const customerCode of customerCodes) {
+            if (!customerCode || (!CUSTOMER_INFO.find((e) => e.ship_to_part_code == customerCode) && !NEW_CUSTOMER_CODES.includes(customerCode))) {
+                console.log(`Customer not found ${customerCode}`)
+                continue
+            }
+
+            const customerMaster = await getBpByKeyValue("externalId", customerCode)
+
+            const shipmentDate = formatDate($event.shipmentDate)
+            const vehicleNo = $event.fleetInfo.vehicle.vehicleRegistrationNumber
+            const customer = customerMaster?.name
+            const origin = _.first($event.shipmentStages)?.place?.name ?? _.first($event.shipmentStages)?.hub?.name ?? ""
+            const destination = _.last($event.shipmentStages)?.place?.name ?? _.last($event.shipmentStages)?.hub?.name ?? ""
+            const trackingLink = `https://test.fretron.com/shared-shipment?uuid=${SHIPMENT_ID}`
+
+            //************************************************** */
+            const liveLocData = await getLiveLocation(SHIPMENT_ID)
+                const smsLiveLocationLink = liveLocData?.data ?
+                    `https://alpha.fretron.com/shared-shipment/v4?code=${liveLocData?.data}` : '';
+
+            //************************************************** */
+
+            const customerEmails = customerMaster.contacts?.find((e) => e.name.includes("(KAM)"))?.emails
+
+            let to = customerEmails ? customerEmails : [CUSTOMER_INFO.find((e) => e.ship_to_part_code == customerCode)?.email_ids]
+            if (NEW_CUSTOMER_CODES.includes(customerCode)) {
+                console.log("Customer Found From Latest Records")
+                to = ["supriyo.paul@jindalstainless.com"]
+            }
+            const cc = [
+                'nishant.girdhar@jindalstainless.com',
+                'dariya.singh@jindalstainless.com',
+                'ankita.saxena@jindalstainless.com',
+                'monu.khan@fretron.com',
+                'devendra.singh@fretron.com'        
+            ]
+            const subject = `Shipment Tracking link - ${vehicleNo} - ${customer}`
+            const html = _generateHTML({ shipmentDate, vehicleNo, shipToParty: customer, origin, destination, trackingLink })
+            if(to.length>0){
+                const emailRes = await sendEmail(to, cc, subject, null, html)
+                console.log(emailRes)
+            } else {
+                console.log(`No emails found for customer code: ${customerCode}`)
+            }
+
+
+            //************************************************** */
+            try {
+                const customerInfo = CUSTOMER_EMAIL_PHONE_INFO.find(info => info.shipToPartyCode === customerCode)
+                if (customerInfo && customerInfo.phone && customerInfo.phone.length > 0) {
+                    const smsContent = `Shipment No. - ${$event.shipmentNumber} Shipment Date. - ${shipmentDate} Vehicle No. - ${vehicleNo} Shipment origin. - ${origin} Destination - ${destination} Link - ${smsLiveLocationLink}`
+                    console.log(smsContent)
+                    for (const phoneNumber of customerInfo.phone) {
+                        const smsRes = await sendSms(smsContent, phoneNumber)
+                        console.log(`SMS sent to ${phoneNumber}:`, smsRes)
+                    }
+                    to = customerInfo.emails
+                    if(to.length > 0){
+                        await sendEmail(to, cc, subject, null, html)
+                    }
+                } else {
+                    console.log(`No phone numbers found for customer code: ${customerCode}`)
+                }
+            } catch (error) {
+                console.log(`Error sending SMS for customer ${customerCode}:`, error.message)
+            }
+            //************************************************** */
+        }
+    } catch (e) {
+        console.log(`Cathed Error : ${e.message}`)
+    }
 }
