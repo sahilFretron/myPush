@@ -71,4 +71,39 @@ let givenCoordinates = [
 // console.log("Maximum distance between consecutive points:", maxSegmentInfo.distance);
 // console.log("Points with maximum distance:", maxSegmentInfo.points);
 
-console.log(new Date(Date.now()).toISOString().replace('T', ' ').replace(/\.\d+Z$/, ''))
+// console.log(new Date(Date.now()).toISOString().replace('T', ' ').replace(/\.\d+Z$/, ''))
+
+
+async function exitHook(dataArr,level) {
+    const grouped = {};
+    
+    dataArr.forEach(item => {
+        const key = `${item.itemConsigneeExtId.value}-${item.itemConsignerExtId.value}`;
+        
+        if (!grouped[key]) {
+            grouped[key] = {
+                itemConsigneeExtId: item.itemConsigneeExtId,
+                itemConsignerExtId: item.itemConsignerExtId
+            };
+        }
+        
+        Object.keys(item).forEach(k => {
+            if (k !== 'itemConsigneeExtId' && k !== 'itemConsignerExtId') {
+                let fieldDef = item[k];
+                if (fieldDef.dataType == "Double") {
+                    if (!grouped[key][k]) {
+                        grouped[key][k] = fieldDef;
+                    } else {
+                        grouped[key][k].value += fieldDef.value;
+                    }
+                } else {
+                    grouped[key][k] = item[k];
+                }
+            }
+        });
+    });
+    
+    return Object.values(grouped);
+}
+
+exitHook(dataArr);
