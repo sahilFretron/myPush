@@ -5,7 +5,8 @@
 
 // const FRT_PUB_BASE_URL = `${FRT_PUB_BASE_URL}`
 
-const BASE_URL = `${FRT_PUB_BASE_URL}`;
+const BASE_URL = `https://apis.fretron.com`
+const rp = require('request-promise')
 
 const token ="Bearer eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2NTgxMTc4MzEsInVzZXJJZCI6ImE0MmU1MzljLTg4ZjMtNDJjZi1hMWU3LWQxM2UwYjYwODMzZCIsImVtYWlsIjoic3lzdGVtX2ludGVncmF0aW9uQGZyZXRyb24uY29tIiwibW9iaWxlTnVtYmVyIjoiOTAwMDAwMDAwMCIsIm9yZ0lkIjoiODIzOTQ3YTMtMDJjMC00ZTY1LThmNGUtMjFkYTM3MGVhNmNkIiwibmFtZSI6IlN5c3RlbSBJbnRlZ3JhdGlvbiIsIm9yZ1R5cGUiOiJGTEVFVF9PV05FUiIsImlzR29kIjp0cnVlLCJwb3J0YWxUeXBlIjoiYmFzaWMifQ.Aa7JhlJvxEWWuzjOF1fPObRg3h3d3SwCkZql8_9BinM"
 
@@ -285,6 +286,8 @@ async function addOrUpdateShortageMaterialCost(shCharge, cn, shortageQty,sh) {
     if (!shCharge) {
       shCharge = await autoFillCharge(shId, cnCharge)
     }
+    // shCharge.charge.amount = 0
+    // shCharge.charge.base = 0
     shCharge.lineItems.forEach(ele => {
       if (ele.consignmentId != cn.uuid) {
         if (!ele.charge.base) ele.charge.base = 0;
@@ -299,6 +302,8 @@ async function addOrUpdateShortageMaterialCost(shCharge, cn, shortageQty,sh) {
         ele.charge.rate = materialRate + gstAdded
         ele.charge.amount = ele.charge.base * ele.charge.rate;
         ele.charge.amount = ele.charge.amount;
+        // shCharge.charge.base += shortageQty
+        // shCharge.charge.amount += ele.charge.amount
       }
     })
     shCharge.charge.chartsOfAccount = INCOME_COA
@@ -434,9 +439,9 @@ async function main(shId) {
 }
 
 
-let shUuid  =  $event.query.shipmentId
+let shUuid  =  "02d3acec-3f53-49dd-80ae-c87f9cad721d"
 console.log(`Hit ${shUuid}`)
-await main(shUuid)
+main(shUuid)
 
 return "DONE"
 
